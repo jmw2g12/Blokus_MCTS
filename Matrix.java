@@ -1,17 +1,15 @@
 import java.util.stream.*;
 public class Matrix {
-    private final int M;             // number of rows
-    private final int N;             // number of columns
-    private final double[][] data;   // M-by-N array
+    private final int M;             
+    private final int N;             
+    private final double[][] data;   
 
-    // create M-by-N matrix of 0's
     public Matrix(int M, int N) {
         this.M = M;
         this.N = N;
         data = new double[M][N];
     }
     
-    // create column matrix based on 1d array
     public Matrix(double[] data) {
         M = data.length;
         N = 1;
@@ -29,7 +27,6 @@ public class Matrix {
         	this.data[i][0] = unboxed[i];
     }
 
-    // create matrix based on 2d array
     public Matrix(double[][] data) {
         M = data.length;
         N = data[0].length;
@@ -39,7 +36,6 @@ public class Matrix {
                     this.data[i][j] = data[i][j];
     }
     
-    // create matrix based on 2d array
     public Matrix(Double[][] data) {
         M = data.length;
         N = data[0].length;
@@ -51,10 +47,8 @@ public class Matrix {
     
     
 
-    // copy constructor
     private Matrix(Matrix A) { this(A.data); }
 
-    // create and return a random M-by-N matrix with values between 0 and 1
     public static Matrix random(int M, int N) {
         Matrix A = new Matrix(M, N);
         for (int i = 0; i < M; i++)
@@ -63,7 +57,6 @@ public class Matrix {
         return A;
     }
 
-    // create and return the N-by-N identity matrix
     public static Matrix identity(int N) {
         Matrix I = new Matrix(N, N);
         for (int i = 0; i < N; i++)
@@ -71,14 +64,12 @@ public class Matrix {
         return I;
     }
 
-    // swap rows i and j
     private void swap(int i, int j) {
         double[] temp = data[i];
         data[i] = data[j];
         data[j] = temp;
     }
 
-    // create and return the transpose of the invoking matrix
     public Matrix transpose() {
         Matrix A = new Matrix(N, M);
         for (int i = 0; i < M; i++)
@@ -87,7 +78,6 @@ public class Matrix {
         return A;
     }
 
-    // return C = A + B
     public Matrix plus(Matrix B) {
         Matrix A = this;
         if (B.M != A.M || B.N != A.N) throw new RuntimeException("Illegal matrix dimensions.");
@@ -99,7 +89,6 @@ public class Matrix {
     }
 
 
-    // return C = A - B
     public Matrix minus(Matrix B) {
         Matrix A = this;
         if (B.M != A.M || B.N != A.N) throw new RuntimeException("Illegal matrix dimensions.");
@@ -110,7 +99,6 @@ public class Matrix {
         return C;
     }
     
-    // return C = A * v
     public Matrix addCoefficient(Double v) {
         Matrix A = this;
         Matrix C = new Matrix(M, N);
@@ -120,7 +108,6 @@ public class Matrix {
         return C;
     }
     
-    // return C = A * v
     public Matrix multiplyCoefficient(Double v) {
         Matrix A = this;
         Matrix C = new Matrix(M, N);
@@ -130,7 +117,6 @@ public class Matrix {
         return C;
     }
     
-    // return C = A / v
     public Matrix divideCoefficient(Double v) {
         Matrix A = this;
         Matrix C = new Matrix(M, N);
@@ -140,7 +126,6 @@ public class Matrix {
         return C;
     }
     
-    // return C = v / A
     public Matrix coefficientOver(Double v) {
         Matrix A = this;
         Matrix C = new Matrix(M, N);
@@ -150,7 +135,6 @@ public class Matrix {
         return C;
     }
     
-    // return C = exp(A)
     public Matrix exp() {
         Matrix A = this;
         Matrix C = new Matrix(M, N);
@@ -160,7 +144,6 @@ public class Matrix {
         return C;
     }
 
-    // does A = B exactly?
     public boolean eq(Matrix B) {
         Matrix A = this;
         if (B.M != A.M || B.N != A.N) throw new RuntimeException("Illegal matrix dimensions.");
@@ -170,7 +153,6 @@ public class Matrix {
         return true;
     }
 
-    // return C = A * B
     public Matrix times(Matrix B) {
         Matrix A = this;
         if (A.N != B.M) throw new RuntimeException("Illegal matrix dimensions.");
@@ -187,19 +169,15 @@ public class Matrix {
     }
 
 
-    // return x = A^-1 b, assuming A is square and has full rank
     public Matrix solve(Matrix rhs) {
         if (M != N || rhs.M != N || rhs.N != 1)
             throw new RuntimeException("Illegal matrix dimensions.");
 
-        // create copies of the data
         Matrix A = new Matrix(this);
         Matrix b = new Matrix(rhs);
 
-        // Gaussian elimination with partial pivoting
         for (int i = 0; i < N; i++) {
 
-            // find pivot row and swap
             int max = i;
             for (int j = i + 1; j < N; j++)
                 if (Math.abs(A.data[j][i]) > Math.abs(A.data[max][i]))
@@ -207,14 +185,11 @@ public class Matrix {
             A.swap(i, max);
             b.swap(i, max);
 
-            // singular
             if (A.data[i][i] == 0.0) throw new RuntimeException("Matrix is singular.");
 
-            // pivot within b
             for (int j = i + 1; j < N; j++)
                 b.data[j][0] -= b.data[i][0] * A.data[j][i] / A.data[i][i];
 
-            // pivot within A
             for (int j = i + 1; j < N; j++) {
                 double m = A.data[j][i] / A.data[i][i];
                 for (int k = i+1; k < N; k++) {
@@ -224,7 +199,6 @@ public class Matrix {
             }
         }
 
-        // back substitution
         Matrix x = new Matrix(N, 1);
         for (int j = N - 1; j >= 0; j--) {
             double t = 0.0;
@@ -239,7 +213,6 @@ public class Matrix {
     public int rows() { return M; }
     public int cols() { return N; }
 
-    // print matrix to standard output
     public void show() {
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) 

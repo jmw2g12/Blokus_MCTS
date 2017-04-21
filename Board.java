@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.lang.Math;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-public class Board implements BoardMCTS{
+public class Board{
 	String[][] board;
 	Integer boardSize;
 	ArrayList<String> allPieceCodes = new ArrayList<String>();
@@ -68,7 +68,7 @@ public class Board implements BoardMCTS{
 	}
 	public double[] getBinaryScore(){
 		double[] score = new double[2];
-		if (gameOver()){	//need to update if more than 2 players are playing
+		if (gameOver()){	
 			int p1Score = blocksOnBoard(players.get(0).getPieceCode());
 			int p2Score = blocksOnBoard(players.get(1).getPieceCode());
 			if (p1Score > p2Score){
@@ -146,10 +146,10 @@ public class Board implements BoardMCTS{
 		}
 		return piecesDown;
 	}
-	public ArrayList<Move> getMoves(){
+	public ArrayList<Piece> getMoves(){
 		return getMoves(currentPlayer);	
 	}
-	public ArrayList<Move> getMoves(Player pl){
+	public ArrayList<Piece> getMoves(Player pl){
 		ArrayList<Pair<Block,Integer>> cornerBlocks = new ArrayList<Pair<Block,Integer>>();
 		ArrayList<Pair<Block,Integer>> connectableBlocks = new ArrayList<Pair<Block,Integer>>();
 		ArrayList<Piece> possibleMoves = new ArrayList<Piece>();
@@ -161,49 +161,13 @@ public class Board implements BoardMCTS{
 		}else if (pl == players.get(1)){
 			piecesDown = p2PiecesDown;
 		}
-		
-		//*************************************************************************
 
-		cornerBlocks = getCornerBlocks(pieceCode);
-//		System.out.println("num of corner blocks: " + cornerBlocks.size());
-//		System.out.println("corner blocks:");
-//		for (Pair<Block,Integer> bi : cornerBlocks){
-//			System.out.println(bi.getL().coordinate.to_string() + " in dir " + bi.getR());
-//		}
-//		System.out.println("/corner blocks--");
-//		
-//		System.out.println("");
-//		System.out.println("");
-		
+		cornerBlocks = getCornerBlocks(pieceCode);	
 		connectableBlocks = getConnectableBlocks(cornerBlocks,pieceCode);
-//		System.out.println("num of connectable blocks: " + connectableBlocks.size());
-//		
-//		System.out.println("connectable blocks:");
-//		for (Pair<Block,Integer> bi : connectableBlocks){
-//			System.out.println(bi.getL().coordinate.to_string() + " in dir " + bi.getR());
-//		}
-//		System.out.println("/connectable blocks--");
-		
-		
 		possibleMoves = getPossibleMoves(connectableBlocks, pieceCode, piecesDown);
 		
-		/*for (Piece p : possibleMoves){
-			System.out.println("here at " + possibleMoves.indexOf(p) + " out of " + possibleMoves.size());
-			Board temp = new Board(14);
-			temp.setPlayers(players);
-			temp.setPieces(allPieces);
-			temp.putTestPieceOnBoard(p, pieceCode);
-			temp.print();
-		}*/
-		
-		ArrayList<Move> moves = new ArrayList<Move>();
-		for (Piece piece : possibleMoves){
-			moves.add(new MoveMCTS(piece));
-		}
-		return moves;
-		
-		//*************************************************************************
-		
+		return possibleMoves;
+
 	}
 
 	public ArrayList<Piece> getPossibleMoves(ArrayList<Pair<Block,Integer>> connectables, String pieceCode, ArrayList<Boolean> piecesDown){
@@ -213,8 +177,6 @@ public class Board implements BoardMCTS{
 				Piece toPlace = p.clone();
 				for (Block b : toPlace.blocks){
 					if (canBlockConnect(b,bi.getR())){
-						//want to toPlace equivalent of b
-						//toPlace.place_piece(b, bi.getL(), bi.getR());
 						placePiece(b,bi.getL(),bi.getR());
 						if (doesPieceFit(toPlace,pieceCode)){
 							pl.add(toPlace.clone());
@@ -227,7 +189,6 @@ public class Board implements BoardMCTS{
 		return pl;
 	}
 	public void placePiece(Block b, Block connectTo, int direction){
-		//System.out.println(direction + " from " + connectTo.coordinate.to_string());
 		if (direction == 1){
 			b.set_adjacent_coords_to_null();
 			b.coordinate = new Coord(connectTo.coordinate.x+1,connectTo.coordinate.y+1);
@@ -290,29 +251,29 @@ public class Board implements BoardMCTS{
 	public double[] getMoveWeights(String weightingMethod) {
 		return getMoveWeights(getMoves(),weightingMethod);
 	}
-	public double[] getMoveWeights(ArrayList<Move> moves, String weighting_method) {
+	public double[] getMoveWeights(ArrayList<Piece> moves, String weighting_method) {
 		if (weighting_method.equals("size") || weighting_method.equals("")){
 			double[] result = new double[moves.size()];
-			for (Move m : moves){
-				result[moves.indexOf(m)] = Math.pow((double)m.getPiece().size(),1.5);
+			for (Piece m : moves){
+				result[moves.indexOf(m)] = Math.pow((double)m.size(),1.5);
 			}
 			return result;
 		}else if (weighting_method.equals("heat")){
 			double[] result = new double[moves.size()];
-			for (Move m : moves){
-				result[moves.indexOf(m)] = explorationHeatMapScore(m.getPiece());
+			for (Piece m : moves){
+				result[moves.indexOf(m)] = explorationHeatMapScore(m);
 			}
 			return result;
 		}else if (weighting_method.equals("product")){
 			double[] result = new double[moves.size()];
-			for (Move m : moves){
-				result[moves.indexOf(m)] = explorationProductScore(m.getPiece());
+			for (Piece m : moves){
+				result[moves.indexOf(m)] = explorationProductScore(m);
 			}
 			return result;
 		}else if (weighting_method.equals("uct") || weighting_method.equals("ucb")){
 			double[] result = new double[moves.size()];
-			for (Move m : moves){
-				result[moves.indexOf(m)] = explorationProductScore(m.getPiece());
+			for (Piece m : moves){
+				result[moves.indexOf(m)] = explorationProductScore(m);
 			}
 			return result;
 		}else{
@@ -325,7 +286,6 @@ public class Board implements BoardMCTS{
 		double[][] cellPoints = new double[boardSize][boardSize];
 		for (int x = 0; x < boardSize; x++){
 			for (int y = 0; y < boardSize; y++){
-				//System.out.println(" getting cell at " + x + ", " + y + " = " + getFromCoordinate(x,y));
 				if (getFromCoordinate(x,y) != null && getFromCoordinate(x,y).equals(currentPlayer.getPieceCode())){
 					int x_small_idx = (int)Math.floor(x/2);
 					int x_large_idx = (int)Math.floor(x/7);
@@ -339,18 +299,14 @@ public class Board implements BoardMCTS{
 		for (int x = 0; x < boardSize; x++){
 			for (int y = 0; y < boardSize; y++){
 				cellPoints[y][x] = 10 - smallStride[(int)Math.floor(y/2)][(int)Math.floor(x/2)] - 0.1*largeStride[(int)Math.floor(y/7)][(int)Math.floor(x/7)];
-				//System.out.print(cellPoints[y][x] + "   ");
 			}
-			//System.out.println("");
 		}
 		Coord c;
 		int result = 0;
 		for (Block b : p.blocks){
 			c = b.coordinate;
-			//System.out.println("Adding " + cellPoints[c.y][c.x] + " to " + result + " at from coordinate " + c.x + " , " + c.y);
 			result += cellPoints[c.y][c.x];
 		}
-		//System.out.println("Returning result : " + result);
 		return result;
 	}
 	public int explorationProductScore(Piece p){
@@ -401,7 +357,7 @@ public class Board implements BoardMCTS{
 		int x = b.coordinate.x;
 		int y = b.coordinate.y;
 		switch (direction){
-			case 1 : // direction one relates to top right
+			case 1 : 
 				if (b.coordinate.x+1 >= boardSize) return false;		
 				if (b.coordinate.y+1 >= boardSize) return false;
 				if (board[b.coordinate.y+1][b.coordinate.x+1] != null && !board[b.coordinate.y+1][b.coordinate.x+1].equals("")) return false; 
@@ -410,7 +366,7 @@ public class Board implements BoardMCTS{
 				if (!b.starter_block && getFromCoordinate(x+1,y) != null && getFromCoordinate(x+1,y).equals(pieceCode)) return false;
 				if (!b.starter_block && getFromCoordinate(x,y+1) != null && getFromCoordinate(x,y+1).equals(pieceCode)) return false;
 				return true;
-			case 2 : // direction one relates to bottom right
+			case 2 : 
 				if (b.coordinate.x+1 >= boardSize) return false;		
 				if (b.coordinate.y-1 < 0) return false;
 				if (board[b.coordinate.y-1][b.coordinate.x+1] != null && !board[b.coordinate.y-1][b.coordinate.x+1].equals("")) return false; 
@@ -419,7 +375,7 @@ public class Board implements BoardMCTS{
 				if (!b.starter_block && getFromCoordinate(x,y-1) != null && getFromCoordinate(x,y-1).equals(pieceCode)) return false;
 				if (!b.starter_block && getFromCoordinate(x+1,y) != null && getFromCoordinate(x+1,y).equals(pieceCode)) return false;
 				return true;
-			case 3 : // direction one relates to bottom left
+			case 3 : 
 				if (b.coordinate.x-1 < 0) return false;		
 				if (b.coordinate.y-1 < 0) return false;
 				if (board[b.coordinate.y-1][b.coordinate.x-1] != null && !board[b.coordinate.y-1][b.coordinate.x-1].equals("")) return false; 
@@ -428,7 +384,7 @@ public class Board implements BoardMCTS{
 				if (!b.starter_block && getFromCoordinate(x-1,y) != null && getFromCoordinate(x-1,y).equals(pieceCode)) return false;
 				if (!b.starter_block && getFromCoordinate(x,y-1) != null && getFromCoordinate(x,y-1).equals(pieceCode)) return false;
 				return true;
-			case 4 : // direction one relates to top left
+			case 4 : 
 				if (b.coordinate.x-1 < 0) return false;		
 				if (b.coordinate.y+1 >= boardSize) return false;
 				if (board[b.coordinate.y+1][b.coordinate.x-1] != null && !board[b.coordinate.y+1][b.coordinate.x-1].equals("")) return false; 
@@ -441,7 +397,6 @@ public class Board implements BoardMCTS{
 		return false;
 	}
 	public void putPieceOnBoard(Piece p, String pieceCode){
-		// System.out.println("here 1");
  		if (pieceCode.equals(players.get(0).pieceCode)){
  			p1PiecesDown.set(p.pieceNumber, new Boolean(true));
  		}else if (pieceCode.equals(players.get(1).pieceCode)){
@@ -449,7 +404,6 @@ public class Board implements BoardMCTS{
 		}
 
 		piecesDown.add(new Pair<Piece,String>(p,pieceCode));
-		//pieces_left.remove(p);
 		for (Block b : p.blocks){
 			Coord c = b.coordinate;
 			board[c.y][c.x] = pieceCode;
@@ -466,14 +420,14 @@ public class Board implements BoardMCTS{
 			board[c.y][c.x] = pieceCode;
 		}
 	}
-	public void makeMove(Move m, String pieceCode){
-		putPieceOnBoard(m.getPiece(), pieceCode);
+	public void makeMove(Piece m, String pieceCode){
+		putPieceOnBoard(m, pieceCode);
 	}
-	public void makeMove(Move m){
-		putPieceOnBoard(m.getPiece(), currentPlayer.getPieceCode());
+	public void makeMove(Piece m){
+		putPieceOnBoard(m, currentPlayer.getPieceCode());
 	}
-	public void makeMove(Move m, int playerId){		
-		putPieceOnBoard(m.getPiece(), players.get(playerId).getPieceCode());
+	public void makeMove(Piece m, int playerId){		
+		putPieceOnBoard(m, players.get(playerId).getPieceCode());
 	}
 	public void putStartingPieceOnBoard(Piece p, String pieceCode){
 		allPieceCodes.add(pieceCode);
@@ -597,7 +551,6 @@ public class Board implements BoardMCTS{
 			}
 			coord_id++;
 		}
-		//printCleanDisplay(pieceCode);
 		print();
 		for (Coord coord : optionCoords){ 
 			board[coord.y][coord.x] = null;

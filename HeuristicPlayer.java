@@ -18,11 +18,8 @@ public class HeuristicPlayer extends Player{
 	public Piece choosePiece(){
 		int bestScore = 0;
 		int pieceScore = 0;
-		//Board cloned;
 		ArrayList<Piece> best = new ArrayList<Piece>();
 		for (Piece p : possibleMoves){
-			//cloned = board.clone();
-			//cloned.putPieceOnBoard(p,pieceCode);
 			pieceScore = board.explorationHeatMapScore(p);
 			if (pieceScore > bestScore){
 				best.clear();
@@ -33,7 +30,6 @@ public class HeuristicPlayer extends Player{
 			}
 		}
 		int n = rand.nextInt(best.size());
-		//System.out.println("-------------------------------------------");
 		return best.get(n);
 	}
 	public int explorationManhattanScore(Piece p){

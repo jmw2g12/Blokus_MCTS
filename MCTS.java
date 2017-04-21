@@ -14,7 +14,7 @@ public class MCTS {
 
 	private boolean scoreBounds;
 	private String scoringMethod;
-	private boolean trackTime; // display thinking time used
+	private boolean trackTime; 
 	
 	private String weightingMethod = "";
 	
@@ -37,12 +37,11 @@ public class MCTS {
 	 * @param bounds enable or disable score bounds.
 	 * @return
 	 */
-	public Move runMCTS(Board startingBoard, int runs, boolean bounds, String scoringMethod) {
+	public Piece runMCTS(Board startingBoard, int runs, boolean bounds, String scoringMethod) {
 		scoreBounds = bounds;
 		this.scoringMethod = scoringMethod;
 		rootNode = new Node(startingBoard,weightingMethod);
 		
-		//System.out.println("Making choice for player: " + rootNode.player);
 		
 		long startTime = System.nanoTime();
 
@@ -92,41 +91,28 @@ public class MCTS {
 	 */
 	private void _select(Board currentBoard, Node currentNode) {
 		while (true) {
-			// Break procedure if end of tree
 			if (currentBoard.gameOver()) {
 				currentNode.backPropagateScore(getScore(currentBoard));
 				if (scoreBounds) {
-					// This runs only if bounds propagation is enabled.
-					// It propagates bounds from solved nodes and prunes
-					// branches from the when needed.
 					currentNode.backPropagateBounds(getScore(currentBoard));
 				}
 				return;
 			}
 
-			// We have not visited this node hence the list is null
 			if (currentNode.unvisitedChildren == null) {
 				currentNode.expandNode(currentBoard);
 			}
 
-			// If player ID is 0 or positive it means this is a normal node
-			// A negative ID means the node is a random node
 			if (currentNode.player >= 0){
-				// This node has unexplored children
 				if (!currentNode.unvisitedChildren.isEmpty()) {
-					// it picks a move at random from list of unvisited children
 					Node temp = currentNode.unvisitedChildren.remove(random.nextInt(currentNode.unvisitedChildren.size()));
 					currentNode.children.add(temp);
 					currentBoard.makeMove(temp.move,currentNode.player);
 					playout(temp, currentBoard);
 					return;
 				} else {
-					// This node had no unexplored children
-					// hence we can proceed down to the next node
 					ArrayList<Node> bestNodes = currentNode.select(optimisticBias, pessimisticBias, explorationConstant);
 					
-					// This only occurs if all branches have been 
-					// pruned from the tree 
 					if (currentNode == rootNode && bestNodes.isEmpty())
 						return;
 					
@@ -138,17 +124,12 @@ public class MCTS {
 				if (currentNode.rVisited == null)
 					currentNode.rVisited = new HashSet<Integer>();
 				
-				// We're in a random node, so pick a child at random
 				int indexOfMove = currentNode.randomSelect(currentBoard);
 				
 				if (currentNode.rVisited.contains(indexOfMove)){
-					// The node has been visited previously
-					// So we can just proceed down
 					currentNode = currentNode.unvisitedChildren.get(indexOfMove);
 					currentBoard.makeMove(currentNode.move,currentNode.player);
 				} else {
-					// The node has never been visited, so
-					// we run a playout from it, and quit
 					currentNode = currentNode.unvisitedChildren.get(indexOfMove);
 					currentBoard.makeMove(currentNode.move,currentNode.player);
 					playout(currentNode, currentBoard);
@@ -175,7 +156,7 @@ public class MCTS {
 		tuple.getValue().backPropagateScore(score);
 	}
 	
-	private Map.Entry<Board, Node> treePolicy(Board b, Node node) { //need to look at final move conditions
+	private Map.Entry<Board, Node> treePolicy(Board b, Node node) { 
 		while(true) {
 			if (b.gameOver()) {
 				return new AbstractMap.SimpleEntry<Board, Node>(b, node);
@@ -183,7 +164,7 @@ public class MCTS {
 				if (node.unvisitedChildren == null) {
 					node.expandNode(b); 
 					Board temp = b.clone();
-					ArrayList<Move> moves = b.getMoves();
+					ArrayList<Piece> moves = b.getMoves();
 				}
 				
 				if (!node.unvisitedChildren.isEmpty()) {
@@ -210,8 +191,7 @@ public class MCTS {
 	 *            this is the node whose children are considered
 	 * @return the best Move the algorithm can find
 	 */
-	private Move finalSelect(Node n) {
-		//System.out.println("final select " + n.player);
+	private Piece finalSelect(Node n) {
 		double bestValue = Double.NEGATIVE_INFINITY;
 		double tempBest;
 		ArrayList<Node> bestNodes = new ArrayList<Node>();
@@ -221,9 +201,6 @@ public class MCTS {
 			tempBest = s.games;
 			tempBest += s.opti[n.player] * optimisticBias;
 			tempBest += s.pess[n.player] * pessimisticBias;
-			// tempBest += 1.0 / Math.sqrt(s.games);
-			//tempBest = Math.min(tempBest, s.opti[n.player]);
-			//tempBest = Math.max(tempBest, s.pess[n.player]);
 			if (tempBest > bestValue) {
 				bestNodes.clear();
 				bestNodes.add(s);
@@ -237,8 +214,6 @@ public class MCTS {
 		
 		Node finalNode = bestNodes.get(random.nextInt(bestNodes.size()));
 		
-		//System.out.println("Highest value: " + bestValue + ", O/P Bounds: "
-		//		+ finalNode.opti[n.player] + ", " + finalNode.pess[n.player]);
 		return finalNode.move;
 	}
 
@@ -249,21 +224,18 @@ public class MCTS {
 	 * @return
 	 */
 	private double[] playout(Node state, Board board) {
-		ArrayList<Move> moves;
-		Move mv;
+		ArrayList<Piece> moves;
+		Piece mv;
 		Board brd = board.duplicate();
-		// Start playing random moves until the game is over
 		while (!brd.gameOver()) {
 			moves = brd.getMoves();
-			//mv = moves.get(random.nextInt(moves.size()));
 			mv = getRandomMove(brd,moves,state);
 			brd.makeMove(mv,brd.getCurrentPlayer());
-			//brd.print();
 		}
 		return getScore(brd);
 	}
 
-	private Move getRandomMove(Board board, ArrayList<Move> moves, Node state) {
+	private Piece getRandomMove(Board board, ArrayList<Piece> moves, Node state) {
 		double[] weights = getMoveWeights(moves, weightingMethod, board, state);
 		
 		double totalWeight = 0.0d;
@@ -277,7 +249,6 @@ public class MCTS {
 		}
 		int randomIndex = -1;
 		double random = Math.random() * totalWeight;
-		//System.out.println("get random move, weights.length = " + weights.length + ", totalWeight = " + totalWeight + ", random = " + random);
 		for (int i = 0; i < weights.length; ++i){
 		    random -= weights[i];
 		    if (random <= 0.0d)
@@ -290,23 +261,23 @@ public class MCTS {
 		return moves.get(randomIndex);
 	}
 	
-	public double[] getMoveWeights(ArrayList<Move> moves, String weightingMethod, Board b, Node state) {
+	public double[] getMoveWeights(ArrayList<Piece> moves, String weightingMethod, Board b, Node state) {
 		if (weightingMethod.equals("size") || weightingMethod.equals("")){
 			double[] result = new double[moves.size()];
-			for (Move m : moves){
-				result[moves.indexOf(m)] = Math.pow((double)m.getPiece().size(),1.5);
+			for (Piece m : moves){
+				result[moves.indexOf(m)] = Math.pow((double)m.size(),1.5);
 			}
 			return result;
 		}else if (weightingMethod.equals("heat") || weightingMethod.equals("exploration")){
 			double[] result = new double[moves.size()];
-			for (Move m : moves){
-				result[moves.indexOf(m)] = b.explorationHeatMapScore(m.getPiece());
+			for (Piece m : moves){
+				result[moves.indexOf(m)] = b.explorationHeatMapScore(m);
 			}
 			return result;
 		}else if (weightingMethod.equals("product")){
 			double[] result = new double[moves.size()];
-			for (Move m : moves){
-				result[moves.indexOf(m)] = b.explorationProductScore(m.getPiece());
+			for (Piece m : moves){
+				result[moves.indexOf(m)] = b.explorationProductScore(m);
 			}
 			return result;
 		}else if (weightingMethod.equals("uct") || weightingMethod.equals("ucb")){
@@ -322,16 +293,16 @@ public class MCTS {
 			System.out.println("parent.rVisited.size() = " + ((state.parent == null || state.parent.rVisited == null) ? "null" : state.parent.rVisited.size()));
 			System.out.println("parent.games = " + (state.parent == null ? "null" : state.parent.games));
 	
-			for (Move m : moves){
-				result[moves.indexOf(m)] = b.explorationProductScore(m.getPiece());
+			for (Piece m : moves){
+				result[moves.indexOf(m)] = b.explorationProductScore(m);
 			}
 			return result;
 		}else if (weightingMethod.equals("valuenet") || weightingMethod.equals("value")){
 			double[] result = new double[moves.size()];
 			Board temp;
-			for (Move m : moves){
+			for (Piece m : moves){
 				temp = b.clone();
-				b.putPieceOnBoard(m.getPiece(),p.getPieceCode());
+				b.putPieceOnBoard(m,p.getPieceCode());
 				result[moves.indexOf(m)] = vn.getValue(b,p.getStartingCorner() == 1);
 			}
 			return result;

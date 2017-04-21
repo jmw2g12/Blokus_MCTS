@@ -25,10 +25,10 @@ public class MCTSPlayer extends Player{
 	public Piece choosePiece(){
 		board.setCurrentPlayer(this);
 		if (piecesOnBoard.size() >= 3){
-			Move m = mcts.runMCTS(board, iterations, false, scoringMethod);
+			Piece p = mcts.runMCTS(board, iterations, false, scoringMethod);
 			iterations = (int)Math.round((double)iterations * iteration_multiplication_factor);
-			if (m == null) return null;
-			return m.getPiece();
+			if (p == null) return null;
+			return p;
 		}else{
 			return chooseSetPlayPiece();
 		}
@@ -60,7 +60,6 @@ public class MCTSPlayer extends Player{
 				best.add(p);
 			}
 		}
-		//System.out.println("finished testing board");
 		int n = rand.nextInt(best.size());
 		return best.get(n);
 	}

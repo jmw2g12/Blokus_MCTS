@@ -26,7 +26,6 @@ public class ValueNet {
 					flatInput.add(cell);
 				}
 			}
-			//printBoard(flatInput.toArray(new Double[flatInput.size()]),true);
 		}else{
 			for (int y = 0; y < b.getBoardSize(); y++){
 				for (int x = b.getBoardSize()-1; x >= 0; x--){
@@ -39,7 +38,6 @@ public class ValueNet {
 					flatInput.add(cell);
 				}
 			}
-			//printBoard(flatInput.toArray(new Double[flatInput.size()]),false);
 		}
 		return apply(flatInput.toArray(new Double[flatInput.size()]));
 	}
@@ -59,12 +57,10 @@ public class ValueNet {
 		Matrix y = new Matrix(input);
 		for (int i = 0; i < weights.size(); i++){
 			if (i == weights.size()-1){
-				//y = weights{j} * y + bias{j};
 				y = weights.get(i).transpose().times(y);
 				y = y.addCoefficient(biases.get(i).valueAt(0,0));
 			}else{
-				//y = 2 ./ (1 + exp(-2 * (weights{j} * y + bias{j}))) - 1;
-				y = weights.get(i).transpose().times(y);//.transpose();
+				y = weights.get(i).transpose().times(y);
 				y = biases.get(i).plus(y);
 				y = y.multiplyCoefficient(-2.0);
 				y = y.exp();

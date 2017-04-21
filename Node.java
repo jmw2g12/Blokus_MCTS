@@ -5,7 +5,7 @@ import java.util.Set;
 public class Node {
 	public double[] score;
 	public double games;
-	public Move move;
+	public Piece move;
 	public ArrayList<Node> unvisitedChildren;
 	public ArrayList<Node> children;
 	public Set<Integer> rVisited;
@@ -39,7 +39,7 @@ public class Node {
 	 * @param m
 	 * @param prnt
 	 */
-	public Node(Board b, Move m, Node prnt, String weightingMethod) {
+	public Node(Board b, Piece m, Node prnt, String weightingMethod) {
 		children = new ArrayList<Node>();
 		this.weightingMethod = weightingMethod;
 		parent = prnt;
@@ -87,8 +87,7 @@ public class Node {
 	 * @param currentBoard
 	 */
 	public void expandNode(Board currentBoard){
-		//System.out.println("currentBoard.getCurrentPlayer() = " + currentBoard.getCurrentPlayer());
-		ArrayList<Move> legalMoves = currentBoard.getMoves();
+		ArrayList<Piece> legalMoves = currentBoard.getMoves();
 		unvisitedChildren = new ArrayList<Node>();
 		for (int i = 0; i < legalMoves.size(); i++) {
 			Node tempState = new Node(currentBoard, legalMoves.get(i), this, weightingMethod);
@@ -108,21 +107,16 @@ public class Node {
 		double bestValue = Double.NEGATIVE_INFINITY;
 		ArrayList<Node> bestNodes = new ArrayList<Node>();
 		for (Node s : children) {
-			// Pruned is only ever true if a branch has been pruned 
-			// from the tree and that can only happen if bounds 
-			// propagation mode is enabled.
 			if (s.pruned == false) {
 				final double tempBest = s.upperConfidenceBound(explorationConstant)
 						+optimisticBias * s.opti[player]
 						+pessimisticBias * s.pess[player];
 
 				if (tempBest > bestValue) {
-					// If we found a better node
 					bestNodes.clear();
 					bestNodes.add(s);
 					bestValue = tempBest;
 				} else if (tempBest == bestValue) {
-					// If we found an equal node
 					bestNodes.add(s);
 				}
 			}
@@ -176,8 +170,6 @@ public class Node {
 			}
 		}
 
-		// This compares against a dummy node with bounds 1 0
-		// if not all children have been explored
 		if (!unvisitedChildren.isEmpty()) {
 			for (int i = 0; i < opti.length; i++) {
 				if (i == player) {
@@ -188,7 +180,6 @@ public class Node {
 			}
 		}
 
-		// TODO: This causes redundant pruning. Fix it
 		pruneBranches();
 		if (parent != null)
 			parent.backPropagateBoundsHelper();
@@ -231,7 +222,6 @@ public class Node {
 		    }
 		}
 		
-		//Node rNode = unvisitedChildren.get(randomIndex);
 		return randomIndex;
 	}
 }

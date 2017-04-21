@@ -79,18 +79,13 @@ public abstract class Player{
 		if (strategy.equals("human")) updatePieceIDs();
 		Piece p;
 		possibleMoves = moveToPieceList(board.getMoves(this));
-		//System.out.println("num of possible moves: " + possibleMoves.size());
-		//System.out.println(countTrue(board.getPiecesDown(this)) + " == " + piecesOnBoard.size());
-		//printBools(board.getPiecesDown(this));
 		if (possibleMoves.size() == 0){
 			finished = true;
-			//System.out.println("There are no more moves available! Player in " + startingCorner + " is finished.");
 			return false;
 		}
 		p = choosePiece();
 		if (p == null){
 			finished = true;
-			//System.out.println("There is no move chosen! Player in " + startingCorner + " is finished.");
 			return false;
 		}
 		board.putPieceOnBoard(p,pieceCode);
@@ -99,10 +94,10 @@ public abstract class Player{
 				
 		return true;
 	}
-	public ArrayList<Piece> moveToPieceList(ArrayList<Move> ml){
+	public ArrayList<Piece> moveToPieceList(ArrayList<Piece> ml){
 		ArrayList<Piece> pl = new ArrayList<Piece>();
-		for (Move m : ml){
-			pl.add(m.getPiece());
+		for (Piece m : ml){
+			pl.add(m);
 		}
 		return pl;
 	}
@@ -142,7 +137,6 @@ public abstract class Player{
 		int counter = 0;
 		for (Piece p : piecesRemaining){
 			System.out.println("Piece " + counter + ": ");
-			//p.print_piece();
 			for (String s : p.getPieceDiagram(" ")){
 				System.out.println(s);
 			}
@@ -157,7 +151,7 @@ public abstract class Player{
 		}
 		return s;
 	}
-	public void padPieceDiagram(ArrayList<String> pieceArray, int rows){ //has 3 things in, size = 3, index up to 2, rows=5, pad with 2 rows, up until index = 4
+	public void padPieceDiagram(ArrayList<String> pieceArray, int rows){ 
 		pieceArray.ensureCapacity(rows);
 		int cols = pieceArray.get(0).length();
 		for (int i = 0; i < rows; i++){
@@ -182,7 +176,6 @@ public abstract class Player{
  		for (Piece p : printList){
  			pieceDiagram = p.getPieceRepresentation(" ",Character.toString((char)248),false);
  			if (pieceDiagram.get(0).length() + columnCounter > maxColumns){
- 				//print out pieces up until now
  				printArray = new ArrayList<String>(maxRows);
  				for (int i = 0; i < maxRows; i++){
  					printArray.add("");
@@ -201,7 +194,6 @@ public abstract class Player{
  					System.out.println(nBlanks(columnCounter));
  				}
  				
- 				//reset 2 arraylists and col/row counters
  				pieceCounter += pieceList.size();
  				pieceList = new ArrayList<Piece>();
  				maxRows = 0;
@@ -212,13 +204,12 @@ public abstract class Player{
  			columnCounter += pieceDiagram.get(0).length();
  			if (pieceDiagram.size() > maxRows) maxRows = pieceDiagram.size();
  		}
- 		//print out pieces up until now
  		printArray = new ArrayList<String>(maxRows);
  		for (int i = 0; i < maxRows; i++){
  			printArray.add("");
  		}
  		for (Piece toPrint : pieceList){
- 			pieceDiagram = toPrint.getPieceRepresentation(" ",Character.toString((char)248),!representationOnly,pieceList.indexOf(toPrint)+pieceCounter); //changed here! was true
+ 			pieceDiagram = toPrint.getPieceRepresentation(" ",Character.toString((char)248),!representationOnly,pieceList.indexOf(toPrint)+pieceCounter); 
  			padPieceDiagram(pieceDiagram,maxRows);
  			for (int i = 0; i < maxRows; i++){
  				printArray.set(i,printArray.get(i)+pieceDiagram.get(i)+nBlanks(xSpacing));

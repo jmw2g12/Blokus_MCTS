@@ -79,11 +79,9 @@ public class Piece{
 		for (int j = max_y+1; j >= -1; j--){
 			for (int i = -1; i <= max_x+1; i++){
 				line = line + ((coordinates.contains(new Coord(i,j))) ? (blocks.get(coordinates.indexOf(new Coord(i,j))).ID) : blank);
-				//System.out.print((coordinates.contains(new Coord(i,j))) ? (blocks.get(coordinates.indexOf(new Coord(i,j))).ID) : "-");
 			}
 			result.add(line);
 			line = new String("");
-			//System.out.println("");
 		}
 		return result;
 	}
@@ -101,11 +99,9 @@ public class Piece{
 		for (int j = max_y+2; j >= -1; j--){
 			for (int i = -1; i <= max_x+1; i++){
 				line = line + ((coordinates.contains(new Coord(i,j))) ? (numberBlocks ? blocks.get(coordinates.indexOf(new Coord(i,j))).ID : nonBlank) : blank);
-				//System.out.print((coordinates.contains(new Coord(i,j))) ? (blocks.get(coordinates.indexOf(new Coord(i,j))).ID) : "-");
 			}
 			result.add(line);
 			line = new String("");
-			//System.out.println("");
 		}
 		if (number.length != 0){
 			result.set(0,"#"+number[0]+result.get(0).substring((number[0] < 10) ? 2 : ((number[0] >= 10) ? 3 : 4)));
@@ -125,7 +121,6 @@ public class Piece{
 		System.out.println();
 	}
 	public void printPieceRepresentation(){
-		//System.out.println();
 		for (String s : getPieceRepresentation(" ",Character.toString((char)248),false)){
 			System.out.println(s);
 		}
@@ -194,7 +189,6 @@ public class Piece{
 	}
 	public ArrayList<Pair<Block,Integer>> getConnectableBlocks(String pieceCode){
 		ArrayList<Pair<Block,Integer>> result = new ArrayList<Pair<Block,Integer>>();
-		//if (!pieceCode.equals(this.pieceCode)) return result;
 		for (Block b : blocks){
 			if (b.topright) result.add(new Pair<Block,Integer>(b,1));
 			if (b.bottomright) result.add(new Pair<Block,Integer>(b,2));
@@ -235,7 +229,6 @@ public class Piece{
 			if (blocks.get(cloned_blocks.indexOf(b)).left != null) linked_cloned_blocks.get(cloned_blocks.indexOf(b)).bottom = linked_cloned_blocks.get(b.neighbour_ids.get(3));
 			if (blocks.get(cloned_blocks.indexOf(b)).top != null) linked_cloned_blocks.get(cloned_blocks.indexOf(b)).left = linked_cloned_blocks.get(b.neighbour_ids.get(0));
 		}
-		//result.blocks = linked_cloned_blocks;
 		for (Block b : linked_cloned_blocks){
 			b.coordinate = null;
 		}
@@ -256,7 +249,6 @@ public class Piece{
 			if (blocks.get(cloned_blocks.indexOf(b)).right != null) linked_cloned_blocks.get(cloned_blocks.indexOf(b)).bottom = linked_cloned_blocks.get(b.neighbour_ids.get(1));
 			if (blocks.get(cloned_blocks.indexOf(b)).bottom != null) linked_cloned_blocks.get(cloned_blocks.indexOf(b)).left = linked_cloned_blocks.get(b.neighbour_ids.get(2));
 		}
-		//result.blocks = linked_cloned_blocks;
 		for (Block b : linked_cloned_blocks){
 			b.coordinate = null;
 		}
@@ -305,9 +297,6 @@ public class Piece{
 		return result;
 	}
 	public ArrayList<Piece> getAllPieceVariations(){
-		//System.out.println("In getAllPieceVariations function for piece: ");
-		//printPieceDiagram();
-		//System.out.println("***" + '\n');
 		ArrayList<Piece> allVariations = new ArrayList<Piece>();
 		
 		allVariations.add(this);

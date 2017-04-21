@@ -19,7 +19,7 @@ public class HumanPlayer extends Player{
 	public Player clone(){
 		return new HumanPlayer(board,rand,new ArrayList<Piece>(pieces),pieceCode,allPlayers,startingCorner);
 	}
-	public Piece choosePiece(){ //should have no side effects, simply return player's chosen piece.
+	public Piece choosePiece(){ 
 		return acceptUserInput();
 	}
 	public String[] acceptValues(int numOfConnectors){
@@ -82,7 +82,6 @@ public class HumanPlayer extends Player{
 			}
 			if (input.length == 1 && isNumeric(input[0])){
 				if (Integer.parseInt(input[0]) < uniquePieces.size() && Integer.parseInt(input[0]) >= 0){
-					//Accepted piece is valid, print rotations
 					pieceIndex = Integer.parseInt(input[0]);
 					System.out.println("Number of variations  = " + uniquePieces.get(Integer.parseInt(input[0])).getAllPieceVariations().size());
 					pieceVariations = printPiecesInLine(uniquePieces.get(Integer.parseInt(input[0])).getAllPieceVariations(), 120, 3, 0, false, true);
@@ -97,7 +96,6 @@ public class HumanPlayer extends Player{
 					}
 					if (input.length == 1 && isNumeric(input[0])){
 						if (Integer.parseInt(input[0]) < pieceVariations.size() && Integer.parseInt(input[0]) >= 0){
-							//Accepted rotation is valid, obtain piecesRemaining index of piece
 							chosenPiece = pieceVariations.get(Integer.parseInt(input[0]));
 							result[0] = Integer.toString(pieceVariations.get(Integer.parseInt(input[0])).findPieceInArrayList(piecesRemaining));
 							System.out.println("You chose this piece:");
@@ -112,7 +110,6 @@ public class HumanPlayer extends Player{
 								continue;
 							}
 							if (input.length == 1 && isNumeric(input[0]) && Integer.parseInt(input[0]) < chosenPiece.blocks.size() && Integer.parseInt(input[0]) >= 0){
-								//Accepted block number is valid
 								result[1] = input[0];
 								System.out.println('\n' + "Please enter connector number");
 								try{

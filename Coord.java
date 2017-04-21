@@ -12,9 +12,6 @@ public class Coord{
 		return x + "," + y;
 	}
 	public int manhattanDistance(Coord c){
-		//System.out.println("these coords : " + this.x + ", " + this.y);
-		//System.out.println("c's coords : " + c.x + ", " + c.y);
-		//System.out.println("result = " + (Math.abs(c.x - this.x) + Math.abs(c.y - this.y)));
 		return (Math.abs(c.x - this.x) + Math.abs(c.y - this.y));
 	}
 	public int productScore(Coord c){
