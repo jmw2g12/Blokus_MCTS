@@ -32,8 +32,6 @@ public abstract class Player{
 		this.startingCorner = startingCorner;
 	}
 	
-	
-	
 	public int numberOfMoves(){
 		return piecesOnBoard.size();
 	}

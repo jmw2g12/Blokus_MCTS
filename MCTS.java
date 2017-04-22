@@ -8,23 +8,20 @@ import java.util.Random;
 public class MCTS {
 	private Random random;
 	private Node rootNode;
-	private double explorationConstant = Math.sqrt(2.0);
-	private double pessimisticBias;
-	private double optimisticBias;
-
-	private boolean scoreBounds;
-	private String scoringMethod;
-	private boolean trackTime; 
 	
+	private String scoringMethod;
 	private String weightingMethod = "";
+	private double explorationConstant = Math.sqrt(2.0);
 	
 	private Player p;
 	
 	ValueNet vn;
 
-	public MCTS(Player p, String weightingMethod) {
+	public MCTS(Player p, double explorationConstant, String weightingMethod, String scoringMethod) {
 		random = new Random();
+		this.explorationConstant = explorationConstant;
 		this.weightingMethod = weightingMethod;
+		this.scoringMethod = scoringMethod;
 		this.p = p;
 		vn = new ValueNet();
 	}
@@ -37,31 +34,12 @@ public class MCTS {
 	 * @param bounds enable or disable score bounds.
 	 * @return
 	 */
-	public Piece runMCTS(Board startingBoard, int runs, boolean bounds, String scoringMethod) {
-		scoreBounds = bounds;
-		this.scoringMethod = scoringMethod;
-		rootNode = new Node(startingBoard,weightingMethod);
+	public Piece runMCTS(Board startingBoard, int runs) {
+		rootNode = new Node(startingBoard);
 		
-		
-		long startTime = System.nanoTime();
-
 		for (int i = 0; i < runs; i++) {
 			select(startingBoard.duplicate(), rootNode);
-			
-			/*if (runs < 10){
-				System.out.println(i + "/" + runs);
-			}else{
-				if (i % (runs/10) == 0){
-					System.out.println((i/(runs/10)+1) + "/10");
-				}
-			}*/
 		}
-
-		long endTime = System.nanoTime();
-
-		if (this.trackTime)
-			System.out.println("Thinking time per move in milliseconds: "
-					+ (endTime - startTime) / 1000000);
 
 		return finalSelect(rootNode);
 	}
@@ -71,71 +49,8 @@ public class MCTS {
 				return b.getBinaryScore();
 			case "difference":
 				return b.getScore();
-			case "exploration":
-				return b.getProductScore();
 			default:
 				return b.getScore();
-		}
-	}
-
-	/**
-	 * This represents the select stage, or default policy, of the algorithm.
-	 * Traverse down to the bottom of the tree using the selection strategy
-	 * until you find an unexpanded child node. Expand it. Run a random playout.
-	 * Backpropagate results of the playout.
-	 * 
-	 * @param node
-	 *            Node from which to start selection
-	 * @param brd
-	 * 			  Board state to work from.
-	 */
-	private void _select(Board currentBoard, Node currentNode) {
-		while (true) {
-			if (currentBoard.gameOver()) {
-				currentNode.backPropagateScore(getScore(currentBoard));
-				if (scoreBounds) {
-					currentNode.backPropagateBounds(getScore(currentBoard));
-				}
-				return;
-			}
-
-			if (currentNode.unvisitedChildren == null) {
-				currentNode.expandNode(currentBoard);
-			}
-
-			if (currentNode.player >= 0){
-				if (!currentNode.unvisitedChildren.isEmpty()) {
-					Node temp = currentNode.unvisitedChildren.remove(random.nextInt(currentNode.unvisitedChildren.size()));
-					currentNode.children.add(temp);
-					currentBoard.makeMove(temp.move,currentNode.player);
-					playout(temp, currentBoard);
-					return;
-				} else {
-					ArrayList<Node> bestNodes = currentNode.select(optimisticBias, pessimisticBias, explorationConstant);
-					
-					if (currentNode == rootNode && bestNodes.isEmpty())
-						return;
-					
-					Node finalNode = bestNodes.get(random.nextInt(bestNodes.size()));
-					currentNode = finalNode;
-					currentBoard.makeMove(finalNode.move,currentNode.player);
-				}
-			} else {
-				if (currentNode.rVisited == null)
-					currentNode.rVisited = new HashSet<Integer>();
-				
-				int indexOfMove = currentNode.randomSelect(currentBoard);
-				
-				if (currentNode.rVisited.contains(indexOfMove)){
-					currentNode = currentNode.unvisitedChildren.get(indexOfMove);
-					currentBoard.makeMove(currentNode.move,currentNode.player);
-				} else {
-					currentNode = currentNode.unvisitedChildren.get(indexOfMove);
-					currentBoard.makeMove(currentNode.move,currentNode.player);
-					playout(currentNode, currentBoard);
-					return;					
-				}
-			}
 		}
 	}
 	
@@ -161,19 +76,19 @@ public class MCTS {
 			if (b.gameOver()) {
 				return new AbstractMap.SimpleEntry<Board, Node>(b, node);
 			} else {
-				if (node.unvisitedChildren == null) {
+				if (node.unvisitedChildren == null) { // can no longer perform selection -> expansion stage
 					node.expandNode(b); 
 					Board temp = b.clone();
 					ArrayList<Piece> moves = b.getMoves();
 				}
 				
-				if (!node.unvisitedChildren.isEmpty()) {
+				if (!node.unvisitedChildren.isEmpty()) { //there are still unvisited children
 					Node temp = node.unvisitedChildren.remove(random.nextInt(node.unvisitedChildren.size()));
 					node.children.add(temp);
 					b.makeMove(temp.move);
 					return new AbstractMap.SimpleEntry<Board, Node>(b, temp);
-				} else {
-					ArrayList<Node> bestNodes = node.select(optimisticBias, pessimisticBias, explorationConstant);
+				} else {	//all children have been visited
+					ArrayList<Node> bestNodes = node.select(explorationConstant);
 					Node finalNode = bestNodes.get(random.nextInt(bestNodes.size()));
 					node = finalNode;
 					b.makeMove(finalNode.move,finalNode.player);
@@ -197,10 +112,7 @@ public class MCTS {
 		ArrayList<Node> bestNodes = new ArrayList<Node>();
 
 		for (Node s : n.children) {
-			System.out.println("games = " + s.games);
 			tempBest = s.games;
-			tempBest += s.opti[n.player] * optimisticBias;
-			tempBest += s.pess[n.player] * pessimisticBias;
 			if (tempBest > bestValue) {
 				bestNodes.clear();
 				bestNodes.add(s);
@@ -229,14 +141,14 @@ public class MCTS {
 		Board brd = board.duplicate();
 		while (!brd.gameOver()) {
 			moves = brd.getMoves();
-			mv = getRandomMove(brd,moves,state);
+			mv = getRandomMove(brd,moves);
 			brd.makeMove(mv,brd.getCurrentPlayer());
 		}
 		return getScore(brd);
 	}
 
-	private Piece getRandomMove(Board board, ArrayList<Piece> moves, Node state) {
-		double[] weights = getMoveWeights(moves, weightingMethod, board, state);
+	private Piece getRandomMove(Board board, ArrayList<Piece> moves) {
+		double[] weights = getMoveWeights(moves, board);
 		
 		double totalWeight = 0.0d;
 		double minimum = 0.0d;
@@ -261,8 +173,11 @@ public class MCTS {
 		return moves.get(randomIndex);
 	}
 	
-	public double[] getMoveWeights(ArrayList<Piece> moves, String weightingMethod, Board b, Node state) {
-		if (weightingMethod.equals("size") || weightingMethod.equals("")){
+	public double[] getMoveWeights(ArrayList<Piece> moves, Board b) {
+	
+		if (weightingMethod.equals("")){
+			return null;
+		}else if (weightingMethod.equals("size")){
 			double[] result = new double[moves.size()];
 			for (Piece m : moves){
 				result[moves.indexOf(m)] = Math.pow((double)m.size(),1.5);
@@ -280,23 +195,6 @@ public class MCTS {
 				result[moves.indexOf(m)] = b.explorationProductScore(m);
 			}
 			return result;
-		}else if (weightingMethod.equals("uct") || weightingMethod.equals("ucb")){
-			double[] result = new double[moves.size()];
-			System.out.println("unvisitedChildren.size() = " + (state.unvisitedChildren == null ? "null" : state.unvisitedChildren.size()));
-			System.out.println("children.size() = " + (state.children == null ? "null" : state.children.size()));
-			System.out.println("rVisited.size() = " + (state.rVisited == null ? "null" : state.rVisited.size()));
-			System.out.println("games = " + state.games);
-			
-			System.out.println("state.parent is null ? " + (state.parent == null ? "true" : "false"));
-			System.out.println("parent.unvisitedChildren.size() = " + ((state.parent == null || state.parent.unvisitedChildren == null) ? "null" : state.parent.unvisitedChildren.size()));
-			System.out.println("parent.children.size() = " + ((state.parent == null || state.parent.children == null) ? "null" : state.parent.children.size()));
-			System.out.println("parent.rVisited.size() = " + ((state.parent == null || state.parent.rVisited == null) ? "null" : state.parent.rVisited.size()));
-			System.out.println("parent.games = " + (state.parent == null ? "null" : state.parent.games));
-	
-			for (Piece m : moves){
-				result[moves.indexOf(m)] = b.explorationProductScore(m);
-			}
-			return result;
 		}else if (weightingMethod.equals("valuenet") || weightingMethod.equals("value")){
 			double[] result = new double[moves.size()];
 			Board temp;
@@ -307,41 +205,7 @@ public class MCTS {
 			}
 			return result;
 		}else{
-			System.out.println("HERE :(");
 			return null;
 		}
-	}
-	
-	/**
-	 * Sets the exploration constant for the algorithm. You will need to find
-	 * the optimal value through testing. This can have a big impact on
-	 * performance. Default value is sqrt(2)
-	 * 
-	 * @param exp
-	 */
-	public void setExplorationConstant(double exp) {
-		explorationConstant = exp;
-	}
-
-	/**
-	 * This is multiplied by the pessimistic bounds of any
-	 * considered move during selection.	 
-	 * @param b
-	 */
-	public void setPessimisticBias(double b) {
-		pessimisticBias = b;
-	}
-
-	/**
-	 * This is multiplied by the optimistic bounds of any
-	 * considered move during selection.
-	 * @param b
-	 */
-	public void setOptimisticBias(double b) {
-		optimisticBias = b;
-	}
-
-	public void setTimeDisplay(boolean displayTime) {
-		this.trackTime = displayTime;
 	}
 }

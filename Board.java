@@ -29,7 +29,7 @@ public class Board{
 		Board b = new Board(boardSize);
 		for (int i = 0; i < boardSize; i++){
 			for (int j = 0; j < boardSize; j++){
-				b.board[i][j] = cloneString(board[i][j]);
+				b.board[i][j] = new String(board[i][j]);
 			}
 		}
 		b.allPieceCodes = new ArrayList<String>(allPieceCodes);
@@ -169,7 +169,6 @@ public class Board{
 		return possibleMoves;
 
 	}
-
 	public ArrayList<Piece> getPossibleMoves(ArrayList<Pair<Block,Integer>> connectables, String pieceCode, ArrayList<Boolean> piecesDown){
 		ArrayList<Piece> pl = new ArrayList<Piece>();
 		for (Pair<Block,Integer> bi : connectables){
@@ -270,17 +269,11 @@ public class Board{
 				result[moves.indexOf(m)] = explorationProductScore(m);
 			}
 			return result;
-		}else if (weighting_method.equals("uct") || weighting_method.equals("ucb")){
-			double[] result = new double[moves.size()];
-			for (Piece m : moves){
-				result[moves.indexOf(m)] = explorationProductScore(m);
-			}
-			return result;
 		}else{
 			return null;
 		}
 	}
-	public int explorationHeatMapScore(Piece p){
+	public int explorationHeatMapScore(Piece p){ //only works on 14x14 board size
 		int[][] smallStride = new int[boardSize/2][boardSize/2];
 		int[][] largeStride = new int[boardSize/7][boardSize/7];
 		double[][] cellPoints = new double[boardSize][boardSize];
@@ -320,9 +313,6 @@ public class Board{
 	}
 	public Board duplicate(){
 		return clone();
-	}
-	public String cloneString(String s){
-		return (s == null ? null : new String(s));
 	}
 	public String getFromCoordinate(int x, int y){
 		if (x < boardSize && y < boardSize && x >= 0 && y >= 0){
@@ -463,99 +453,6 @@ public class Board{
 		System.out.print("+");
 		System.out.println("");
 	}
-	public void printCleanDisplay(String pieceCode){
-		System.out.print("+");
-		for (int j = 0; j < boardSize; j++){
-			System.out.print(" - ");
-		}
-		System.out.print("+");
-		System.out.println("");
-		for (int i = boardSize-1; i >= 0; i--){
-			System.out.print("|");
-			for (int j = 0; j < boardSize; j++){
-				if (board[i][j] != null && board[i][j].length() > 1){
-					System.out.print(" " + board[i][j] + "");
-				}else if (board[i][j] != null && board[i][j].length() == 1){
-					if (board[i][j].equals(pieceCode)){
-						System.out.print(" " + ((char)248) + " ");
-					}else{
-						if (isNumeric(board[i][j])){
-							System.out.print(" " + board[i][j] + " ");
-						}else{
-							System.out.print(" " + ((char)183) + " ");
-						}
-					}
-				}else{
-					System.out.print("   ");
-				}
-			}
-			System.out.println("|");
-		}
-		System.out.print("+");
-		for (int j = 0; j < boardSize; j++){
-			System.out.print(" - ");
-		}
-		System.out.print("+");
-		System.out.println("");
-	}
-	public void printOptionsBoard(ArrayList<Pair<Block,Integer>> connectableBlocks){
-		ArrayList<Coord> optionCoords = new ArrayList<Coord>();
-		int coord_id = 1;
-		for (Pair<Block,Integer> p : connectableBlocks){	
-			switch (p.getR()){
-				case 1 : 
-					board[p.getL().coordinate.y+1][p.getL().coordinate.x+1] = Integer.toString(coord_id);
-					optionCoords.add(new Coord(p.getL().coordinate.x+1,p.getL().coordinate.y+1));
-					break;
-				case 2 : 
-					board[p.getL().coordinate.y-1][p.getL().coordinate.x+1] = Integer.toString(coord_id);
-					optionCoords.add(new Coord(p.getL().coordinate.x+1,p.getL().coordinate.y-1));
-					break;
-				case 3 : 
-					board[p.getL().coordinate.y-1][p.getL().coordinate.x-1] = Integer.toString(coord_id);
-					optionCoords.add(new Coord(p.getL().coordinate.x-1,p.getL().coordinate.y-1));
-					break;
-				case 4 : 
-					board[p.getL().coordinate.y+1][p.getL().coordinate.x-1] = Integer.toString(coord_id);
-					optionCoords.add(new Coord(p.getL().coordinate.x-1,p.getL().coordinate.y+1));
-					break;
-			}
-			coord_id++;
-		}
-		print();
-		for (Coord coord : optionCoords){ 
-			board[coord.y][coord.x] = null;
-		}
-	}
-	public void printOptionsBoard(ArrayList<Pair<Block,Integer>> connectableBlocks, String pieceCode){
-		ArrayList<Coord> optionCoords = new ArrayList<Coord>();
-		int coord_id = 1;
-		for (Pair<Block,Integer> p : connectableBlocks){	
-			switch (p.getR()){
-				case 1 : 
-					board[p.getL().coordinate.y+1][p.getL().coordinate.x+1] = Integer.toString(coord_id);
-					optionCoords.add(new Coord(p.getL().coordinate.x+1,p.getL().coordinate.y+1));
-					break;
-				case 2 : 
-					board[p.getL().coordinate.y-1][p.getL().coordinate.x+1] = Integer.toString(coord_id);
-					optionCoords.add(new Coord(p.getL().coordinate.x+1,p.getL().coordinate.y-1));
-					break;
-				case 3 : 
-					board[p.getL().coordinate.y-1][p.getL().coordinate.x-1] = Integer.toString(coord_id);
-					optionCoords.add(new Coord(p.getL().coordinate.x-1,p.getL().coordinate.y-1));
-					break;
-				case 4 : 
-					board[p.getL().coordinate.y+1][p.getL().coordinate.x-1] = Integer.toString(coord_id);
-					optionCoords.add(new Coord(p.getL().coordinate.x-1,p.getL().coordinate.y+1));
-					break;
-			}
-			coord_id++;
-		}
-		print();
-		for (Coord coord : optionCoords){ 
-			board[coord.y][coord.x] = null;
-		}
-	}
 	public void printOptionsBoard(String pieceCode){
 		ArrayList<Coord> optionCoords = new ArrayList<Coord>();
 		int coord_id = 1;
@@ -589,7 +486,7 @@ public class Board{
 		ArrayList<Pair<Block,Integer>> result = new ArrayList<Pair<Block,Integer>>();
 		for (Pair<Piece,String> p : piecesDown){
 			if (p.getR().equals(pieceCode)){
-				for (Pair<Block,Integer> b : p.getL().connectable_blocks()){
+				for (Pair<Block,Integer> b : p.getL().getConnectableBlocks()){
 					result.add(b);
 				}
 			}

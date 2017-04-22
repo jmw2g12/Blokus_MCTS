@@ -49,7 +49,7 @@ public class Piece{
 			System.out.println("Block # = " + b.ID + "    Coordinates = " + b.coordinate.x + ", " + b.coordinate.y);
 		}
 	}
-	public void print_piece(){
+	public void printPiece(){
 		int max_x = -0xFF;
 		int max_y = -0xFF;
 		ArrayList<Coord> coordinates = new ArrayList<Coord>();
@@ -177,7 +177,7 @@ public class Piece{
 		}
 		place_piece(placed_block,c);
 	}
-	public ArrayList<Pair<Block,Integer>> connectable_blocks(){
+	public ArrayList<Pair<Block,Integer>> getConnectableBlocks(){
 		ArrayList<Pair<Block,Integer>> result = new ArrayList<Pair<Block,Integer>>();
 		for (Block b : blocks){
 			if (b.topright) result.add(new Pair<Block,Integer>(b,1));
@@ -187,16 +187,7 @@ public class Piece{
 		}
 		return result;
 	}
-	public ArrayList<Pair<Block,Integer>> getConnectableBlocks(String pieceCode){
-		ArrayList<Pair<Block,Integer>> result = new ArrayList<Pair<Block,Integer>>();
-		for (Block b : blocks){
-			if (b.topright) result.add(new Pair<Block,Integer>(b,1));
-			if (b.bottomright) result.add(new Pair<Block,Integer>(b,2));
-			if (b.bottomleft) result.add(new Pair<Block,Integer>(b,3));
-			if (b.topleft) result.add(new Pair<Block,Integer>(b,4));
-		}
-		return result;
-	}
+
 	public Piece clone(){
 		Piece result = new Piece();
 		result.ID = ID;

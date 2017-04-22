@@ -4,8 +4,8 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.Random;
 public class Blokus{
-	final int boardSize = 14;
-	final int maxPieceSize = 5;
+	final int boardSize = 10;
+	final int maxPieceSize = 4;
 
 	ArrayList<Piece> pieces = new ArrayList<Piece>();
 	ArrayList<Player> players = new ArrayList<Player>();
@@ -37,12 +37,10 @@ public class Blokus{
 		
 		
 		int finishedCount = 0;	
-		int count = 0;
 		while(finishedCount < b.players.size()){
 			for (Player p : b.players){
 				if (!p.isFinished()){
-					System.out.println("value from p1 = " + vn.getValue(b.board,true) + ", value from p2 = " + vn.getValue(b.board,false));
-					count++;
+					b.board.print();
 					if (!p.takeMove()) finishedCount++;
 				}
 			}
@@ -75,7 +73,7 @@ public class Blokus{
 		}else if (strategy.equals("heuristic")){
 			return new HeuristicPlayer(board,rand,pieces,pieceCode,players,corner);
 		}else if (strategy.startsWith("mcts")){
-			return new MCTSPlayer(board,rand,pieces,pieceCode,players,corner,Integer.parseInt(strategy.split("_")[1]),strategy.split("_")[2],strategy.split("_")[3]);
+			return new MCTSPlayer(board,rand,pieces,pieceCode,players,corner,Integer.parseInt(strategy.split("_")[1]),Double.parseDouble(strategy.split("_")[2]),strategy.split("_")[3],strategy.split("_")[4]);
 		}
 		System.out.println("*** Invalid player strategy given! ***");
 		return null;
@@ -84,7 +82,7 @@ public class Blokus{
 		int counter = 0;
 		for (Piece p : pieces){
 			System.out.println("Piece " + counter + ": ");
-			p.print_piece();
+			p.printPiece();
 			System.out.println("");
 			counter++;
 		}

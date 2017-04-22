@@ -12,20 +12,22 @@ public class MCTSPlayer extends Player{
 	String scoringMethod;
 	String weightingMethod = "size";
 	
-	public MCTSPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner, int iterations, String scoringMethod, String weightingMethod){
+	public MCTSPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner, int iterations, double explorationConstant, String weightingMethod, String scoringMethod){
 		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
+		mcts = new MCTS(this, explorationConstant, weightingMethod, scoringMethod);
+		
+		this.weightingMethod = weightingMethod;
+		this.scoringMethod = scoringMethod;
+		this.iterations = iterations;
+		
+		strategy = "mcts_" + Integer.toString(iterations) + "_" + scoringMethod + "_" + weightingMethod;
 		piecesRemaining = new ArrayList<Piece>(pieces);
 		piecesOnBoard = new ArrayList<Piece>();
-		this.weightingMethod = weightingMethod;
-		strategy = "mcts_" + Integer.toString(iterations) + "_" + scoringMethod + "_" + weightingMethod;
-		mcts = new MCTS(this, weightingMethod);
-		this.iterations = iterations;
-		this.scoringMethod = scoringMethod;
 	}
 	public Piece choosePiece(){
 		board.setCurrentPlayer(this);
 		if (piecesOnBoard.size() >= 3){
-			Piece p = mcts.runMCTS(board, iterations, false, scoringMethod);
+			Piece p = mcts.runMCTS(board, iterations);
 			iterations = (int)Math.round((double)iterations * iteration_multiplication_factor);
 			if (p == null) return null;
 			return p;
@@ -40,7 +42,6 @@ public class MCTSPlayer extends Player{
 			score += startingCoord.manhattanDistance(b.coordinate);
 		}
 		return score;
-		
 	}
 	public int sizeScore(Piece p){
 		return p.blocks.size();
