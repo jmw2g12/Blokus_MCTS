@@ -7,18 +7,24 @@ import java.lang.Math;
 
 public class MCTSPlayer extends Player{
 	MCTS mcts;
-	int iterations = 100;
+	boolean limitByTime = true;
+	long moveTime = 30000;
+	int iterations = 400;
 	double iteration_multiplication_factor = 1.3;
 	String scoringMethod;
 	String weightingMethod = "size";
 	
-	public MCTSPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner, int iterations, double explorationConstant, String weightingMethod, String scoringMethod){
+	public MCTSPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner, int limit, double explorationConstant, String weightingMethod, String scoringMethod){
 		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
-		mcts = new MCTS(this, explorationConstant, weightingMethod, scoringMethod);
+		mcts = new MCTS(this, explorationConstant, weightingMethod, scoringMethod,limitByTime);
 		
 		this.weightingMethod = weightingMethod;
 		this.scoringMethod = scoringMethod;
-		this.iterations = iterations;
+		if (limitByTime){
+			this.moveTime = limit;
+		}else{
+			this.iterations = limit;
+		}
 		
 		strategy = "mcts_" + Integer.toString(iterations) + "_" + scoringMethod + "_" + weightingMethod;
 		piecesRemaining = new ArrayList<Piece>(pieces);
@@ -26,9 +32,11 @@ public class MCTSPlayer extends Player{
 	}
 	public Piece choosePiece(){
 		board.setCurrentPlayer(this);
-		if (piecesOnBoard.size() >= 3){
-			Piece p = mcts.runMCTS(board, iterations);
-			iterations = (int)Math.round((double)iterations * iteration_multiplication_factor);
+		if (piecesOnBoard.size() >= 4){
+			long startTime = System.currentTimeMillis();
+			Piece p = mcts.runMCTS(board, (limitByTime ? moveTime : iterations));
+			System.out.println("Time elapsed : " + (System.currentTimeMillis() - startTime));
+			if (!limitByTime) iterations = (int)Math.round((double)iterations * iteration_multiplication_factor);
 			if (p == null) return null;
 			return p;
 		}else{

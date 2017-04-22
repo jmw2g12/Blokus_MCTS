@@ -29,7 +29,7 @@ public class Board{
 		Board b = new Board(boardSize);
 		for (int i = 0; i < boardSize; i++){
 			for (int j = 0; j < boardSize; j++){
-				b.board[i][j] = new String(board[i][j]);
+				b.board[i][j] = (board[i][j] == null ? null : new String(board[i][j]));
 			}
 		}
 		b.allPieceCodes = new ArrayList<String>(allPieceCodes);

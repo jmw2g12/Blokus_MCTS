@@ -4,8 +4,8 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.Random;
 public class Blokus{
-	final int boardSize = 10;
-	final int maxPieceSize = 4;
+	final int boardSize = 14;
+	final int maxPieceSize = 5;
 
 	ArrayList<Piece> pieces = new ArrayList<Piece>();
 	ArrayList<Player> players = new ArrayList<Player>();

@@ -12,16 +12,18 @@ public class MCTS {
 	private String scoringMethod;
 	private String weightingMethod = "";
 	private double explorationConstant = Math.sqrt(2.0);
+	private boolean limitByTime = false;
 	
 	private Player p;
 	
 	ValueNet vn;
 
-	public MCTS(Player p, double explorationConstant, String weightingMethod, String scoringMethod) {
+	public MCTS(Player p, double explorationConstant, String weightingMethod, String scoringMethod, boolean limitByTime) {
 		random = new Random();
 		this.explorationConstant = explorationConstant;
 		this.weightingMethod = weightingMethod;
 		this.scoringMethod = scoringMethod;
+		this.limitByTime = limitByTime;
 		this.p = p;
 		vn = new ValueNet();
 	}
@@ -34,11 +36,18 @@ public class MCTS {
 	 * @param bounds enable or disable score bounds.
 	 * @return
 	 */
-	public Piece runMCTS(Board startingBoard, int runs) {
+	public Piece runMCTS(Board startingBoard, long limit) {
 		rootNode = new Node(startingBoard);
 		
-		for (int i = 0; i < runs; i++) {
-			select(startingBoard.duplicate(), rootNode);
+		if (limitByTime){
+			long startTime = System.currentTimeMillis();
+			while (System.currentTimeMillis() - startTime < limit) {
+				select(startingBoard.duplicate(), rootNode);
+			}
+		}else{
+			for (int i = 0; i < limit; i++) {
+				select(startingBoard.duplicate(), rootNode);
+			}
 		}
 
 		return finalSelect(rootNode);
@@ -112,7 +121,7 @@ public class MCTS {
 		ArrayList<Node> bestNodes = new ArrayList<Node>();
 
 		for (Node s : n.children) {
-			tempBest = s.games;
+			tempBest = Math.pow(s.score[n.player],1.2)/s.games;
 			if (tempBest > bestValue) {
 				bestNodes.clear();
 				bestNodes.add(s);
@@ -175,9 +184,7 @@ public class MCTS {
 	
 	public double[] getMoveWeights(ArrayList<Piece> moves, Board b) {
 	
-		if (weightingMethod.equals("")){
-			return null;
-		}else if (weightingMethod.equals("size")){
+		if (weightingMethod.equals("size")){
 			double[] result = new double[moves.size()];
 			for (Piece m : moves){
 				result[moves.indexOf(m)] = Math.pow((double)m.getSize(),1.5);
@@ -205,7 +212,7 @@ public class MCTS {
 			}
 			return result;
 		}else{
-			return null;
+			return new double[moves.size()];
 		}
 	}
 }

@@ -15,6 +15,47 @@ public class Block{
 		this.bottom = bottom;
 		this.left = left;
 	}
+	public Block(){
+		this.top = null;
+		this.right = null;
+		this.bottom = null;
+		this.left = null;
+		topleft = true;
+		topright = true;
+		bottomleft = true;
+		bottomright = true;			
+	}
+	public Block clone(){
+		Block result = new Block();
+		result.coordinate = coordinate.clone();
+		result.starterBlock = starterBlock;
+		result.ID = ID;
+		result.topright = topright;
+		result.bottomright = bottomright;
+		result.bottomleft = bottomleft;
+		result.topleft = topleft;
+		if (top != null){
+			result.neighbourIds.add(0,top.ID);
+		}else{
+			result.neighbourIds.add(0,null);
+		}
+		if (right != null){
+			result.neighbourIds.add(1,right.ID);
+		}else{
+			result.neighbourIds.add(1,null);
+		}
+		if (bottom != null){
+			result.neighbourIds.add(2,bottom.ID);
+		}else{
+			result.neighbourIds.add(2,null);
+		}
+		if (left != null){
+			result.neighbourIds.add(3,left.ID);
+		}else{
+			result.neighbourIds.add(3,null);
+		}
+		return result;
+	}
 	public boolean hasTopLeft(){ return topleft; }
 	public boolean hasTopRight(){ return topright; }
 	public boolean hasBottomLeft(){ return bottomleft; }
@@ -55,19 +96,6 @@ public class Block{
 		addLeft(b);
 		b.addRight(this);
 	}
-	public Block(){
-		this.top = null;
-		this.right = null;
-		this.bottom = null;
-		this.left = null;
-		topleft = true;
-		topright = true;
-		bottomleft = true;
-		bottomright = true;			
-	}
-	public void print(){
-		System.out.println("top = " + ((top != null) ? top.ID : "0") + ", right = " + ((right != null) ? right.ID : "0") + ", bottom = " + ((bottom != null) ? bottom.ID : "0") + ", left = " + ((left != null) ? left.ID : "0"));
-	}
 	public void setAdjacentCoords(){
 		if (top != null && top.coordinate == null){
 			top.coordinate = new Coord(coordinate.x,coordinate.y+1);
@@ -104,37 +132,5 @@ public class Block{
 			left.coordinate = null;
 			left.setAdjacentCoordsToNull();
 		}			
-	}
-	
-	public Block clone(){
-		Block result = new Block();
-		result.coordinate = coordinate.clone();
-		result.starterBlock = starterBlock;
-		result.ID = ID;
-		result.topright = topright;
-		result.bottomright = bottomright;
-		result.bottomleft = bottomleft;
-		result.topleft = topleft;
-		if (top != null){
-			result.neighbourIds.add(0,top.ID);
-		}else{
-			result.neighbourIds.add(0,null);
-		}
-		if (right != null){
-			result.neighbourIds.add(1,right.ID);
-		}else{
-			result.neighbourIds.add(1,null);
-		}
-		if (bottom != null){
-			result.neighbourIds.add(2,bottom.ID);
-		}else{
-			result.neighbourIds.add(2,null);
-		}
-		if (left != null){
-			result.neighbourIds.add(3,left.ID);
-		}else{
-			result.neighbourIds.add(3,null);
-		}
-		return result;
 	}
 }
