@@ -36,7 +36,7 @@ public class MCTSPlayer extends Player{
 		}
 	}
 	public int explorationScore(Piece p){
-		Coord startingCoord = (startingCorner == 1 ? new Coord(0,0) : new Coord(board.getWidth()-1,board.getHeight()-1));
+		Coord startingCoord = (startingCorner == 1 ? new Coord(0,0) : new Coord(board.getBoardSize()-1,board.getBoardSize()-1));
 		int score = 0;
 		for (Block b : p.blocks){
 			score += startingCoord.manhattanDistance(b.coordinate);
@@ -65,7 +65,7 @@ public class MCTSPlayer extends Player{
 		return best.get(n);
 	}
 	public int explorationProductScore(Piece p){
-		Coord startingCoord = (startingCorner == 1 ? new Coord(0,0) : new Coord(board.getWidth()-1,board.getHeight()-1));
+		Coord startingCoord = (startingCorner == 1 ? new Coord(0,0) : new Coord(board.getBoardSize()-1,board.getBoardSize()-1));
 		int score = 0;
 		for (Block b : p.blocks){
 			score += startingCoord.productScore(b.coordinate);

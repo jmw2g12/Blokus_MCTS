@@ -180,7 +180,7 @@ public class MCTS {
 		}else if (weightingMethod.equals("size")){
 			double[] result = new double[moves.size()];
 			for (Piece m : moves){
-				result[moves.indexOf(m)] = Math.pow((double)m.size(),1.5);
+				result[moves.indexOf(m)] = Math.pow((double)m.getSize(),1.5);
 			}
 			return result;
 		}else if (weightingMethod.equals("heat") || weightingMethod.equals("exploration")){

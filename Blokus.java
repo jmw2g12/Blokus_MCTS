@@ -100,15 +100,15 @@ public class Blokus{
 		
 		
 		b1 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
+		b1.addBottom(b2);
+		b2.addTop(b1);
 		pieces.add(new Piece(b1,b2));
 		pieces.get(pieces.size()-1).pieceNumber = 1;
 		
 		b1 = new Block();
 		b2 = new Block();
-		b1.add_left(b2);
-		b2.add_right(b1);
+		b1.addLeft(b2);
+		b2.addRight(b1);
 		pieces.add(new Piece(b1,b2));
 		pieces.get(pieces.size()-1).pieceNumber = 1;
 		
@@ -117,60 +117,60 @@ public class Blokus{
 		
 		b1 = new Block();
 		b2 = new Block();
-		b1.add_right(b2);
-		b2.add_left(b1);
-		b2.add_bottom(b3);
-		b3.add_top(b2);
+		b1.addRight(b2);
+		b2.addLeft(b1);
+		b2.addBottom(b3);
+		b3.addTop(b2);
 		pieces.add(new Piece(b1,b2,b3));
 		pieces.get(pieces.size()-1).pieceNumber = 2;	
 			
 		b1 = new Block();
 		b2 = new Block();
 		b3 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
-		b2.add_left(b3);
-		b3.add_right(b2);
+		b1.addBottom(b2);
+		b2.addTop(b1);
+		b2.addLeft(b3);
+		b3.addRight(b2);
 		pieces.add(new Piece(b1,b2,b3));
 		pieces.get(pieces.size()-1).pieceNumber = 2;
 				
 		b1 = new Block();
 		b2 = new Block();
 		b3 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
-		b2.add_right(b3);
-		b3.add_left(b2);
+		b1.addBottom(b2);
+		b2.addTop(b1);
+		b2.addRight(b3);
+		b3.addLeft(b2);
 		pieces.add(new Piece(b1,b2,b3));
 		pieces.get(pieces.size()-1).pieceNumber = 2;
 		
 		b1 = new Block();
 		b2 = new Block();
 		b3 = new Block();
-		b1.add_left(b2);
-		b2.add_right(b1);
-		b2.add_bottom(b3);
-		b3.add_top(b2);
+		b1.addLeft(b2);
+		b2.addRight(b1);
+		b2.addBottom(b3);
+		b3.addTop(b2);
 		pieces.add(new Piece(b1,b2,b3));
 		pieces.get(pieces.size()-1).pieceNumber = 2;
 		
 		b1 = new Block();
 		b2 = new Block();
 		b3 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
-		b2.add_bottom(b3);
-		b3.add_top(b2);
+		b1.addBottom(b2);
+		b2.addTop(b1);
+		b2.addBottom(b3);
+		b3.addTop(b2);
 		pieces.add(new Piece(b1,b2,b3));
 		pieces.get(pieces.size()-1).pieceNumber = 3;
 		
 		b1 = new Block();
 		b2 = new Block();
 		b3 = new Block();
-		b1.add_left(b2);
-		b2.add_right(b1);
-		b2.add_left(b3);
-		b3.add_right(b2);
+		b1.addLeft(b2);
+		b2.addRight(b1);
+		b2.addLeft(b3);
+		b3.addRight(b2);
 		pieces.add(new Piece(b1,b2,b3));
 		pieces.get(pieces.size()-1).pieceNumber = 3;
 		
@@ -220,12 +220,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
-		b2.add_bottom(b3);
-		b3.add_top(b2);
-		b3.add_right(b4);
-		b4.add_left(b3);
+		b1.addBottom(b2);
+		b2.addTop(b1);
+		b2.addBottom(b3);
+		b3.addTop(b2);
+		b3.addRight(b4);
+		b4.addLeft(b3);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 4;
 		
@@ -233,12 +233,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
-		b2.add_bottom(b3);
-		b3.add_top(b2);
-		b3.add_left(b4);
-		b4.add_right(b3);
+		b1.addBottom(b2);
+		b2.addTop(b1);
+		b2.addBottom(b3);
+		b3.addTop(b2);
+		b3.addLeft(b4);
+		b4.addRight(b3);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 4;
 		
@@ -246,12 +246,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_left(b2);
-		b2.add_right(b1);
-		b2.add_left(b3);
-		b3.add_right(b2);
-		b3.add_top(b4);
-		b4.add_bottom(b3);
+		b1.addLeft(b2);
+		b2.addRight(b1);
+		b2.addLeft(b3);
+		b3.addRight(b2);
+		b3.addTop(b4);
+		b4.addBottom(b3);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 4;
 		
@@ -259,12 +259,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_left(b2);
-		b2.add_right(b1);
-		b2.add_left(b3);
-		b3.add_right(b2);
-		b3.add_bottom(b4);
-		b4.add_top(b3);
+		b1.addLeft(b2);
+		b2.addRight(b1);
+		b2.addLeft(b3);
+		b3.addRight(b2);
+		b3.addBottom(b4);
+		b4.addTop(b3);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 4;
 		
@@ -272,14 +272,14 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_right(b2);
-		b1.add_bottom(b4);
-		b2.add_left(b1);
-		b2.add_bottom(b3);
-		b3.add_top(b2);
-		b3.add_left(b4);
-		b4.add_right(b3);
-		b4.add_top(b1);
+		b1.addRight(b2);
+		b1.addBottom(b4);
+		b2.addLeft(b1);
+		b2.addBottom(b3);
+		b3.addTop(b2);
+		b3.addLeft(b4);
+		b4.addRight(b3);
+		b4.addTop(b1);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 5;
 		
@@ -287,12 +287,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_right(b2);
-		b2.add_left(b1);
-		b2.add_top(b3);
-		b3.add_bottom(b2);
-		b2.add_right(b4);
-		b4.add_left(b2);
+		b1.addRight(b2);
+		b2.addLeft(b1);
+		b2.addTop(b3);
+		b3.addBottom(b2);
+		b2.addRight(b4);
+		b4.addLeft(b2);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 6;
 		
@@ -300,12 +300,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_right(b2);
-		b2.add_left(b1);
-		b2.add_bottom(b3);
-		b3.add_top(b2);
-		b2.add_right(b4);
-		b4.add_left(b2);
+		b1.addRight(b2);
+		b2.addLeft(b1);
+		b2.addBottom(b3);
+		b3.addTop(b2);
+		b2.addRight(b4);
+		b4.addLeft(b2);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 6;
 		
@@ -313,12 +313,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
-		b2.add_left(b3);
-		b3.add_right(b2);
-		b2.add_bottom(b4);
-		b4.add_top(b2);
+		b1.addBottom(b2);
+		b2.addTop(b1);
+		b2.addLeft(b3);
+		b3.addRight(b2);
+		b2.addBottom(b4);
+		b4.addTop(b2);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 6;
 		
@@ -326,12 +326,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
-		b2.add_right(b3);
-		b3.add_left(b2);
-		b2.add_bottom(b4);
-		b4.add_top(b2);
+		b1.addBottom(b2);
+		b2.addTop(b1);
+		b2.addRight(b3);
+		b3.addLeft(b2);
+		b2.addBottom(b4);
+		b4.addTop(b2);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 6;
 		
@@ -339,12 +339,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_right(b2);
-		b2.add_left(b1);
-		b2.add_bottom(b3);
-		b3.add_top(b2);
-		b3.add_right(b4);
-		b4.add_left(b3);
+		b1.addRight(b2);
+		b2.addLeft(b1);
+		b2.addBottom(b3);
+		b3.addTop(b2);
+		b3.addRight(b4);
+		b4.addLeft(b3);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 7;
 		
@@ -352,12 +352,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_right(b2);
-		b2.add_left(b1);
-		b2.add_top(b3);
-		b3.add_bottom(b2);
-		b3.add_right(b4);
-		b4.add_left(b3);
+		b1.addRight(b2);
+		b2.addLeft(b1);
+		b2.addTop(b3);
+		b3.addBottom(b2);
+		b3.addRight(b4);
+		b4.addLeft(b3);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 7;
 		
@@ -365,12 +365,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
-		b2.add_left(b3);
-		b3.add_right(b2);
-		b3.add_bottom(b4);
-		b4.add_top(b3);
+		b1.addBottom(b2);
+		b2.addTop(b1);
+		b2.addLeft(b3);
+		b3.addRight(b2);
+		b3.addBottom(b4);
+		b4.addTop(b3);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 7;
 		
@@ -378,12 +378,12 @@ public class Blokus{
 		b2 = new Block();
 		b3 = new Block();
 		b4 = new Block();
-		b1.add_bottom(b2);
-		b2.add_top(b1);
-		b2.add_right(b3);
-		b3.add_left(b2);
-		b3.add_bottom(b4);
-		b4.add_top(b3);
+		b1.addBottom(b2);
+		b2.addTop(b1);
+		b2.addRight(b3);
+		b3.addLeft(b2);
+		b3.addBottom(b4);
+		b4.addTop(b3);
 		pieces.add(new Piece(b1,b2,b3,b4));
 		pieces.get(pieces.size()-1).pieceNumber = 7;
 		

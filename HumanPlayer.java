@@ -8,17 +8,12 @@ import java.util.Arrays;
 
 public class HumanPlayer extends Player{
 	BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-	final boolean orderedInput = false;
 	
 	public HumanPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner){
 		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
-		piecesRemaining = new ArrayList<Piece>(pieces);
-		piecesOnBoard = new ArrayList<Piece>();
 		strategy = "human";
 	}
-	public Player clone(){
-		return new HumanPlayer(board,rand,new ArrayList<Piece>(pieces),pieceCode,allPlayers,startingCorner);
-	}
+	
 	public Piece choosePiece(){ 
 		return acceptUserInput();
 	}
@@ -61,112 +56,6 @@ public class HumanPlayer extends Player{
 		}
 		return input;
 	}
-	public String[] acceptValuesInOrder(int numOfConnectors, ArrayList<Piece> uniquePieces){
-		String[] input = {""};
-		String[] result = new String[3];
-		Piece chosenPiece;
-		ArrayList<Piece> pieceVariations;
-		int pieceIndex = 0;
-		while(true){
-			System.out.println("");
-			System.out.println("Please enter piece number");
-	
-			String line = "";
-			try{
-				line = reader.readLine();
-				input = line.split(" ");
-			}catch (IOException ioe){
-				System.out.println("Invalid input!");
-				System.out.println("");
-				continue;
-			}
-			if (input.length == 1 && isNumeric(input[0])){
-				if (Integer.parseInt(input[0]) < uniquePieces.size() && Integer.parseInt(input[0]) >= 0){
-					pieceIndex = Integer.parseInt(input[0]);
-					System.out.println("Number of variations  = " + uniquePieces.get(Integer.parseInt(input[0])).getAllPieceVariations().size());
-					pieceVariations = printPiecesInLine(uniquePieces.get(Integer.parseInt(input[0])).getAllPieceVariations(), 120, 3, 0, false, true);
-					System.out.println("Please enter rotation number");
-					try{
-						line = reader.readLine();
-						input = line.split(" ");
-					}catch (IOException ioe){
-						System.out.println("Invalid input!");
-						System.out.println("");
-						continue;
-					}
-					if (input.length == 1 && isNumeric(input[0])){
-						if (Integer.parseInt(input[0]) < pieceVariations.size() && Integer.parseInt(input[0]) >= 0){
-							chosenPiece = pieceVariations.get(Integer.parseInt(input[0]));
-							result[0] = Integer.toString(pieceVariations.get(Integer.parseInt(input[0])).findPieceInArrayList(piecesRemaining));
-							System.out.println("You chose this piece:");
-							piecesRemaining.get(Integer.parseInt(result[0])).printPieceDiagram();
-							System.out.println("Please enter block number");
-							try{
-								line = reader.readLine();
-								input = line.split(" ");
-							}catch (IOException ioe){
-								System.out.println("Invalid input!");
-								System.out.println("");
-								continue;
-							}
-							if (input.length == 1 && isNumeric(input[0]) && Integer.parseInt(input[0]) < chosenPiece.blocks.size() && Integer.parseInt(input[0]) >= 0){
-								result[1] = input[0];
-								System.out.println('\n' + "Please enter connector number");
-								try{
-									line = reader.readLine();
-									input = line.split(" ");
-								}catch (IOException ioe){
-									System.out.println("Invalid input!");
-									System.out.println("");
-									continue;
-								}
-								if (input.length == 1 && isNumeric(input[0]) && Integer.parseInt(input[0]) <= numOfConnectors && Integer.parseInt(input[0]) >= 1){
-									result[2] = input[0];
-									break;
-								}else if (input.length == 1 && (input[0].equals("undo") || input[0].equals("print"))){
-									printBoardAndOptions();
-									continue;
-								}else{
-									System.out.println("Invalid input! Choose one of the connectors on the board, " + ((numOfConnectors == 1) ? ("of which there is only 1.") : (" from 1 to " + numOfConnectors + ".")));
-								}
-							}else if (input.length == 1 && (input[0].equals("undo") || input[0].equals("print"))){
-									printBoardAndOptions();
-									continue;
-							}else{
-								System.out.println("Invalid input! The piece only has " + (((chosenPiece.blocks.size() + chosenPiece.blocks.size()) == 1) ? " block." : " blocks."));
-							}
-						}else if (input.length == 1 && (input[0].equals("undo") || input[0].equals("print"))){
-									printBoardAndOptions();
-									continue;
-						}else{
-							System.out.println("Invalid input! Please enter a valid rotation ID (<=" + (pieceVariations.size()-1) + ").");
-						}
-					}else if (input.length == 1 && (input[0].equals("undo") || input[0].equals("print"))){
-						printBoardAndOptions();
-						continue;
-					}else{
-						System.out.println("Invalid input! Too many values or not numeric.");
-					}
-				}else if (input.length == 1 && (input[0].equals("undo") || input[0].equals("print"))){
-					printBoardAndOptions();
-					continue;
-				}else{
-					System.out.println("Invalid input! Please enter a valid piece ID (<=" + (uniquePieces.size()-1) + ").");
-				}
-			}else{
-				if (input.length >= 1 && (input[0].equals("q") || input[0].equals("quit"))){
-					System.out.println('\n' + "Goodbye!" + '\n' + '\n');
-					System.exit(0);
-				}
-				if (input.length >= 1 && (input[0].equals("finish") || input[0].equals("resign"))){
-					System.out.println('\n' + "Resigning player" + '\n' + '\n');
-					return new String[]{"resign"};
-				}
-				System.out.println("Invalid input! Too many values or not numeric.");
-			}
-		}
-		return result;
-	}
 	public Piece acceptUserInput(){
 		
 		printBoardAndOptions();
@@ -177,7 +66,7 @@ public class HumanPlayer extends Player{
 		connectableBlocks = board.getConnectableBlocks(board.getCornerBlocks(pieceCode),pieceCode);
 		while(true){
 			
-			input = orderedInput ? acceptValuesInOrder(connectableBlocks.size(),uniquePieces) : acceptValues(connectableBlocks.size());
+			input = acceptValues(connectableBlocks.size());
 			if (input[0].equals("resign")) return null;
 			p = piecesRemaining.get(Integer.parseInt(input[0])).clone();
 			Block bl = p.blocks.get(Integer.parseInt(input[1]));
@@ -194,7 +83,7 @@ public class HumanPlayer extends Player{
 			}else if (dir == 4){
 				c = new Coord(con.coordinate.x-1,con.coordinate.y+1);
 			}
-			p.place_piece(bl,c);
+			p.placePiece(bl,c);
 		
 			if (!board.doesPieceFit(p,pieceCode)){
 				System.out.println("Please enter the id of a piece that fits!");
@@ -210,6 +99,95 @@ public class HumanPlayer extends Player{
 		System.out.println();
 		board.printOptionsBoard(pieceCode);
 		System.out.println();
-		printPiecesInLine(piecesRemaining, 120, 3, 0, orderedInput,false);
+		printPiecesInLine(piecesRemaining, 120, 3, 0);
+	}
+	public ArrayList<Piece> getUniquePiecesFromOrderedList(ArrayList<Piece> list){
+		ArrayList<Piece> result = new ArrayList<Piece>();
+		boolean first = true;
+		Piece prev = list.get(0);
+		for (Piece p : list){
+			if (first == false){
+				if (!p.isSamePiece(prev)){
+					result.add(p);
+				}
+			}else{
+				result.add(p);
+			}
+			first = false;
+			prev = p;
+		}
+		return result;
+	}
+
+	public String nBlanks(int n){
+		String s = "";
+		for (int i = 0; i < n; i++){
+			s += " ";
+		}
+		return s;
+	}
+	public void padPieceDiagram(ArrayList<String> pieceArray, int rows){ 
+		pieceArray.ensureCapacity(rows);
+		int cols = pieceArray.get(0).length();
+		for (int i = 0; i < rows; i++){
+			if (i >= pieceArray.size()){
+				pieceArray.add(nBlanks(cols));
+			}
+		}
+	}
+	public ArrayList<Piece> printPiecesInLine(ArrayList<Piece> piecesRemaining, int maxColumns, int xSpacing, int ySpacing){
+		ArrayList<Piece> pieceList = new ArrayList<Piece>();
+		ArrayList<String> printArray = new ArrayList<String>();
+		ArrayList<String> pieceDiagram = new ArrayList<String>();
+
+		int columnCounter = 0;
+		int maxRows = 0;
+		int pieceCounter = 0;
+ 		for (Piece p : piecesRemaining){
+ 			pieceDiagram = p.getPieceRepresentation(" ",Character.toString((char)248),false);
+ 			if (pieceDiagram.get(0).length() + columnCounter > maxColumns){
+ 				printArray = new ArrayList<String>(maxRows);
+ 				for (int i = 0; i < maxRows; i++){
+ 					printArray.add("");
+ 				}
+ 				for (Piece toPrint : pieceList){
+ 					pieceDiagram = toPrint.getPieceRepresentation(" ",Character.toString((char)248),true,pieceList.indexOf(toPrint)+pieceCounter);
+ 					padPieceDiagram(pieceDiagram,maxRows);
+ 					for (int i = 0; i < maxRows; i++){
+ 						printArray.set(i,printArray.get(i)+pieceDiagram.get(i)+nBlanks(xSpacing));
+ 					}
+ 				}
+ 				for (String s : printArray){
+ 					System.out.println(s);
+ 				}
+ 				for (int i = 0; i < ySpacing; i++){
+ 					System.out.println(nBlanks(columnCounter));
+ 				}
+ 				
+ 				pieceCounter += pieceList.size();
+ 				pieceList = new ArrayList<Piece>();
+ 				maxRows = 0;
+ 				columnCounter = 0;
+ 			}
+ 			pieceDiagram = p.getPieceRepresentation(" ",Character.toString((char)248),false);
+ 			pieceList.add(p);
+ 			columnCounter += pieceDiagram.get(0).length();
+ 			if (pieceDiagram.size() > maxRows) maxRows = pieceDiagram.size();
+ 		}
+ 		printArray = new ArrayList<String>(maxRows);
+ 		for (int i = 0; i < maxRows; i++){
+ 			printArray.add("");
+ 		}
+ 		for (Piece toPrint : pieceList){
+ 			pieceDiagram = toPrint.getPieceRepresentation(" ",Character.toString((char)248),true,pieceList.indexOf(toPrint)+pieceCounter); 
+ 			padPieceDiagram(pieceDiagram,maxRows);
+ 			for (int i = 0; i < maxRows; i++){
+ 				printArray.set(i,printArray.get(i)+pieceDiagram.get(i)+nBlanks(xSpacing));
+ 			}
+ 		}
+ 		for (String s : printArray){
+ 			System.out.println(s);
+ 		}
+ 		return piecesRemaining;
 	}
 }
