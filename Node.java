@@ -31,13 +31,15 @@ public class Node {
 	 * @param prnt
 	 */
 	public Node(Board b, Piece m, Node prnt) {
+		//System.out.println("node init, player = " + player + " b.getCurrentPlayer() = " + b.getCurrentPlayer());
 		children = new ArrayList<Node>();
 		parent = prnt;
 		move = m;
 		Board tempBoard = b.duplicate();
-		tempBoard.makeMove(m,player);
+		tempBoard.makeMove(m);
 		player = tempBoard.getCurrentPlayer();
 		score = new double[b.getQuantityOfPlayers()];
+		//System.out.println("2 node init, player = " + player + " tempBoard.getCurrentPlayer() = " + tempBoard.getCurrentPlayer());
 	}
 
 	/**
@@ -73,7 +75,8 @@ public class Node {
 	 * @param currentBoard
 	 */
 	public void expandNode(Board currentBoard){
-		ArrayList<Piece> legalMoves = currentBoard.getMoves();
+		//System.out.println("node expand, currentBoard.getCurrentPlayer() = " + currentBoard.getCurrentPlayer());
+		ArrayList<Piece> legalMoves = currentBoard.getMoves(player);
 		unvisitedChildren = new ArrayList<Node>();
 		for (int i = 0; i < legalMoves.size(); i++) {
 			Node tempState = new Node(currentBoard, legalMoves.get(i), this);

@@ -41,6 +41,7 @@ public class Blokus{
 			for (Player p : b.players){
 				if (!p.isFinished()){
 					b.board.print();
+					System.out.println(b.board.getMoves().size());
 					if (!p.takeMove()) finishedCount++;
 				}
 			}
@@ -72,6 +73,8 @@ public class Blokus{
 			return new ValueNetPlayer(board,rand,pieces,pieceCode,players,corner);
 		}else if (strategy.equals("heuristic")){
 			return new HeuristicPlayer(board,rand,pieces,pieceCode,players,corner);
+		}else if (strategy.equals("mctstester")){
+			return new MCTSTesterPlayer(board,rand,pieces,pieceCode,players,corner);
 		}else if (strategy.startsWith("mcts")){
 			return new MCTSPlayer(board,rand,pieces,pieceCode,players,corner,Integer.parseInt(strategy.split("_")[1]),Double.parseDouble(strategy.split("_")[2]),strategy.split("_")[3],strategy.split("_")[4]);
 		}

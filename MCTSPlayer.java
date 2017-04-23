@@ -35,8 +35,10 @@ public class MCTSPlayer extends Player{
 		if (piecesOnBoard.size() >= 4){
 			long startTime = System.currentTimeMillis();
 			Piece p = mcts.runMCTS(board, (limitByTime ? moveTime : iterations));
-			System.out.println("Time elapsed : " + (System.currentTimeMillis() - startTime));
-			if (!limitByTime) iterations = (int)Math.round((double)iterations * iteration_multiplication_factor);
+			if (!limitByTime){
+				System.out.println("Time elapsed : " + (System.currentTimeMillis() - startTime));
+				iterations = (int)Math.round((double)iterations * iteration_multiplication_factor);
+			}
 			if (p == null) return null;
 			return p;
 		}else{

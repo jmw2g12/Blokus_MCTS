@@ -41,9 +41,24 @@ public class MCTS {
 		
 		if (limitByTime){
 			long startTime = System.currentTimeMillis();
+			int printed = 0;
+			int printTotal = 100;
+			int shouldPrint = 0;
+			System.out.print("|");
+			for (int i = 0; i < printTotal; i++){
+				System.out.print("-");
+			}
+			System.out.println("|");
+			System.out.print(" ");
 			while (System.currentTimeMillis() - startTime < limit) {
 				select(startingBoard.duplicate(), rootNode);
+				shouldPrint = Math.round(100*(System.currentTimeMillis()-startTime)/limit);
+				for (int i = printed; i < shouldPrint; i++){
+					System.out.print("~");
+				}
+				printed = shouldPrint;
 			}
+			System.out.println("");
 		}else{
 			for (int i = 0; i < limit; i++) {
 				select(startingBoard.duplicate(), rootNode);
@@ -85,22 +100,25 @@ public class MCTS {
 			if (b.gameOver()) {
 				return new AbstractMap.SimpleEntry<Board, Node>(b, node);
 			} else {
-				if (node.unvisitedChildren == null) { // can no longer perform selection -> expansion stage
+				if (node.unvisitedChildren == null) {
 					node.expandNode(b); 
 					Board temp = b.clone();
-					ArrayList<Piece> moves = b.getMoves();
 				}
 				
 				if (!node.unvisitedChildren.isEmpty()) { //there are still unvisited children
 					Node temp = node.unvisitedChildren.remove(random.nextInt(node.unvisitedChildren.size()));
 					node.children.add(temp);
+					//System.out.println("temp.player = " + temp.player + ", b.getCurrentPlayer() = " + b.getCurrentPlayer());
 					b.makeMove(temp.move);
 					return new AbstractMap.SimpleEntry<Board, Node>(b, temp);
 				} else {	//all children have been visited
+					//System.out.println("------------ here ------------");
 					ArrayList<Node> bestNodes = node.select(explorationConstant);
 					Node finalNode = bestNodes.get(random.nextInt(bestNodes.size()));
 					node = finalNode;
-					b.makeMove(finalNode.move,finalNode.player);
+					//System.out.println("node.player = " + node.player + ", b.getCurrentPlayer() = " + b.getCurrentPlayer());
+					b.makeMove(finalNode.move);
+					//System.out.println("---");
 				}
 			}
 		}
@@ -119,9 +137,16 @@ public class MCTS {
 		double bestValue = Double.NEGATIVE_INFINITY;
 		double tempBest;
 		ArrayList<Node> bestNodes = new ArrayList<Node>();
-
+		Board cloned;
+		
+		System.out.println("Final choice: ------------------------------------");
 		for (Node s : n.children) {
-			tempBest = Math.pow(s.score[n.player],1.2)/s.games;
+			cloned = p.board.clone();
+			cloned.makeMove(s.move,cloned.getCurrentPlayer());
+			cloned.print();
+			tempBest = Math.pow(s.score[n.player],2.2)/s.games;
+			System.out.println("s.games = " + s.games + ", s.score[n.player] = " + s.score[n.player]);
+			System.out.println("score : " + tempBest);
 			if (tempBest > bestValue) {
 				bestNodes.clear();
 				bestNodes.add(s);
@@ -133,7 +158,14 @@ public class MCTS {
 		
 		if (bestNodes.size() == 0) return null;
 		
+		System.out.println("Chose: --------");
 		Node finalNode = bestNodes.get(random.nextInt(bestNodes.size()));
+		cloned = p.board.clone();
+		cloned.makeMove(finalNode.move,cloned.getCurrentPlayer());
+		cloned.print();
+		System.out.println("finalNode.games = " + finalNode.games + ", finalNode.score[n.player] = " + finalNode.score[n.player]);
+		tempBest = Math.pow(finalNode.score[n.player],2.2)/finalNode.games;
+		System.out.println("score : " + tempBest);
 		
 		return finalNode.move;
 	}
@@ -145,13 +177,17 @@ public class MCTS {
 	 * @return
 	 */
 	private double[] playout(Node state, Board board) {
+		//System.out.println("running playout");
 		ArrayList<Piece> moves;
 		Piece mv;
 		Board brd = board.duplicate();
 		while (!brd.gameOver()) {
 			moves = brd.getMoves();
 			mv = getRandomMove(brd,moves);
+			int currentPlayer = brd.getCurrentPlayer();
 			brd.makeMove(mv,brd.getCurrentPlayer());
+			//System.out.println("move for player " + currentPlayer);
+			//brd.print();
 		}
 		return getScore(brd);
 	}
