@@ -13,19 +13,21 @@ public class MCTS {
 	private String weightingMethod = "";
 	private double explorationConstant = Math.sqrt(2.0);
 	private boolean limitByTime = false;
+	private String finalSelect = "";
 	
 	private Player p;
 	
-	ValueNet vn;
+	PolicyNet vn;
 
-	public MCTS(Player p, double explorationConstant, String weightingMethod, String scoringMethod, boolean limitByTime) {
+	public MCTS(Player p, double explorationConstant, String weightingMethod, String scoringMethod, boolean limitByTime, String finalSelect) {
 		random = new Random();
 		this.explorationConstant = explorationConstant;
 		this.weightingMethod = weightingMethod;
 		this.scoringMethod = scoringMethod;
 		this.limitByTime = limitByTime;
+		this.finalSelect = finalSelect;
 		this.p = p;
-		vn = new ValueNet();
+		vn = new PolicyNet();
 	}
 
 	/**
@@ -44,21 +46,21 @@ public class MCTS {
 			int printed = 0;
 			int printTotal = 100;
 			int shouldPrint = 0;
-			System.out.print("|");
-			for (int i = 0; i < printTotal; i++){
-				System.out.print("-");
-			}
-			System.out.println("|");
-			System.out.print(" ");
+			//System.out.print("|");
+			//for (int i = 0; i < printTotal; i++){
+				//System.out.print("-");
+			//}
+			//System.out.println("|");
+			//System.out.print(" ");
 			while (System.currentTimeMillis() - startTime < limit) {
 				select(startingBoard.duplicate(), rootNode);
-				shouldPrint = Math.round(100*(System.currentTimeMillis()-startTime)/limit);
-				for (int i = printed; i < shouldPrint; i++){
-					System.out.print("~");
-				}
-				printed = shouldPrint;
+				//shouldPrint = Math.round(100*(System.currentTimeMillis()-startTime)/limit);
+				//for (int i = printed; i < shouldPrint; i++){
+					//System.out.print("~");
+				//}
+				//printed = shouldPrint;
 			}
-			System.out.println("");
+			//System.out.println("");
 		}else{
 			for (int i = 0; i < limit; i++) {
 				select(startingBoard.duplicate(), rootNode);
@@ -68,13 +70,12 @@ public class MCTS {
 		return finalSelect(rootNode);
 	}
 	public double[] getScore(Board b){
-		switch(scoringMethod){
-			case "binary":
-				return b.getBinaryScore();
-			case "difference":
-				return b.getScore();
-			default:
-				return b.getScore();
+		if (scoringMethod.equals("binary")){
+			return b.getBinaryScore();
+		}else if (scoringMethod.equals("difference")){
+			return b.getScore();
+		}else{
+			return b.getScore();
 		}
 	}
 	
@@ -139,14 +140,20 @@ public class MCTS {
 		ArrayList<Node> bestNodes = new ArrayList<Node>();
 		Board cloned;
 		
-		System.out.println("Final choice: ------------------------------------");
+		//System.out.println("Final choice: ------------------------------------");
 		for (Node s : n.children) {
 			cloned = p.board.clone();
 			cloned.makeMove(s.move,cloned.getCurrentPlayer());
-			cloned.print();
-			tempBest = Math.pow(s.score[n.player],2.2)/s.games;
-			System.out.println("s.games = " + s.games + ", s.score[n.player] = " + s.score[n.player]);
-			System.out.println("score : " + tempBest);
+			//cloned.print();
+			if (finalSelect.equals("robust")){
+				tempBest = s.games;
+			}else if (finalSelect.equals("max")){
+				tempBest = s.score[n.player];
+			}else{
+				tempBest = Math.pow(s.score[n.player],1.2)/s.games;
+			}
+			//System.out.println("s.games = " + s.games + ", s.score[n.player] = " + s.score[n.player]);
+			//System.out.println("score : " + tempBest);
 			if (tempBest > bestValue) {
 				bestNodes.clear();
 				bestNodes.add(s);
@@ -158,14 +165,14 @@ public class MCTS {
 		
 		if (bestNodes.size() == 0) return null;
 		
-		System.out.println("Chose: --------");
+		//System.out.println("Chose: --------");
 		Node finalNode = bestNodes.get(random.nextInt(bestNodes.size()));
-		cloned = p.board.clone();
-		cloned.makeMove(finalNode.move,cloned.getCurrentPlayer());
-		cloned.print();
-		System.out.println("finalNode.games = " + finalNode.games + ", finalNode.score[n.player] = " + finalNode.score[n.player]);
-		tempBest = Math.pow(finalNode.score[n.player],2.2)/finalNode.games;
-		System.out.println("score : " + tempBest);
+		//cloned = p.board.clone();
+		//cloned.makeMove(finalNode.move,cloned.getCurrentPlayer());
+		//cloned.print();
+		//System.out.println("finalNode.games = " + finalNode.games + ", finalNode.score[n.player] = " + finalNode.score[n.player]);
+		//tempBest = Math.pow(finalNode.score[n.player],2.2)/finalNode.games;
+		//System.out.println("score : " + tempBest);
 		
 		return finalNode.move;
 	}

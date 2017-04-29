@@ -22,7 +22,7 @@ public class MCTSTesterPlayer extends Player{
 	
 	public MCTSTesterPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner){
 		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
-		mcts = new MCTS(this, explorationConstant, weightingMethod, scoringMethod, limitByTime);
+		mcts = new MCTS(this, explorationConstant, weightingMethod, scoringMethod, limitByTime, "1.2");
 		strategy = "human";
 	}
 	

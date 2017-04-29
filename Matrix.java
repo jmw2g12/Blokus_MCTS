@@ -19,7 +19,10 @@ public class Matrix {
     }
     
     public Matrix(Double[] data) {
-    	double[] unboxed = Stream.of(data).mapToDouble(Double::doubleValue).toArray();
+	double[] unboxed = new double[data.length];
+	for (int i = 0; i < data.length; i++){
+		unboxed[i] = data[i];
+	}
         M = data.length;
         N = 1;
         this.data = new double[M][N];

@@ -13,26 +13,31 @@ public class MCTSPlayer extends Player{
 	double iteration_multiplication_factor = 1.3;
 	String scoringMethod;
 	String weightingMethod = "size";
+	boolean startingPlayout = true;
+	String finalSelect = "";
 	
-	public MCTSPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner, int limit, double explorationConstant, String weightingMethod, String scoringMethod){
+	public MCTSPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner, boolean startingPlayout, int limit, double explorationConstant, String weightingMethod, String scoringMethod, String finalSelect){
 		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
-		mcts = new MCTS(this, explorationConstant, weightingMethod, scoringMethod,limitByTime);
+		mcts = new MCTS(this, explorationConstant, weightingMethod, scoringMethod,limitByTime,finalSelect);
 		
 		this.weightingMethod = weightingMethod;
 		this.scoringMethod = scoringMethod;
+		this.startingPlayout = startingPlayout;
+		this.finalSelect = finalSelect;
 		if (limitByTime){
 			this.moveTime = limit;
 		}else{
 			this.iterations = limit;
 		}
 		
-		strategy = "mcts_" + Integer.toString(iterations) + "_" + scoringMethod + "_" + weightingMethod;
+		strategy = "mcts_" + (startingPlayout ? "playout" : "noplayout") + "_" + (limitByTime ? moveTime : iterations) + "_" + explorationConstant + "_" + scoringMethod + "_" + weightingMethod + "_" + finalSelect;
+		//System.out.println(strategy);
 		piecesRemaining = new ArrayList<Piece>(pieces);
 		piecesOnBoard = new ArrayList<Piece>();
 	}
 	public Piece choosePiece(){
 		board.setCurrentPlayer(this);
-		if (piecesOnBoard.size() >= 4){
+		if (piecesOnBoard.size() >= 4 || !startingPlayout){
 			long startTime = System.currentTimeMillis();
 			Piece p = mcts.runMCTS(board, (limitByTime ? moveTime : iterations));
 			if (!limitByTime){

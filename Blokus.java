@@ -20,13 +20,15 @@ public class Blokus{
 		b.rand = new Random(System.currentTimeMillis());
 		Player p1,p2;
 		
-		ValueNet vn = new ValueNet();
+		PolicyNet vn = new PolicyNet();
 		
 		if (args.length >= 2){
 			p1 = b.generatePlayer(args[0],"1",1);
 			p2 = b.generatePlayer(args[1],"2",3);
 		}else{
 			System.out.println("Program requires at least 2 arguments");
+			System.out.println("Remember MCTS players take args:");
+			System.out.println("boolean startingPlayout, int limit, double explorationConstant, String weightingMethod, String scoringMethod, String finalSelect");
 			return;
 		}
 
@@ -40,8 +42,8 @@ public class Blokus{
 		while(finishedCount < b.players.size()){
 			for (Player p : b.players){
 				if (!p.isFinished()){
-					b.board.print();
-					System.out.println(b.board.getMoves().size());
+					//b.board.print();
+					//System.out.println(b.board.getMoves().size());
 					if (!p.takeMove()) finishedCount++;
 				}
 			}
@@ -53,9 +55,9 @@ public class Blokus{
 		for (Player p : b.players){
 			scores.add(b.board.blocksOnBoard(p.getPieceCode()));
 		}
-		System.out.println("Scores :");
+		//System.out.println("Scores :");
 		for (int i = 0; i < 2; i++){
-			System.out.println("Player " + i + " = " + scores.get(i));
+			System.out.println("Player " + i + " ( " + b.players.get(i).strategy + " ) = " + scores.get(i));
 		}
 	}
 	public class InvalidPlayerException extends Exception{
@@ -69,14 +71,14 @@ public class Blokus{
 			return new HumanPlayer(board,rand,pieces,pieceCode,players,corner);
 		}else if (strategy.equals("random")){
 			return new RandomPlayer(board,rand,pieces,pieceCode,players,corner);
-		}else if (strategy.equals("valuenet")){
-			return new ValueNetPlayer(board,rand,pieces,pieceCode,players,corner);
+		}else if (strategy.equals("policynet") || strategy.equals("policy")){
+			return new PolicyNetPlayer(board,rand,pieces,pieceCode,players,corner);
 		}else if (strategy.equals("heuristic")){
 			return new HeuristicPlayer(board,rand,pieces,pieceCode,players,corner);
 		}else if (strategy.equals("mctstester")){
 			return new MCTSTesterPlayer(board,rand,pieces,pieceCode,players,corner);
 		}else if (strategy.startsWith("mcts")){
-			return new MCTSPlayer(board,rand,pieces,pieceCode,players,corner,Integer.parseInt(strategy.split("_")[1]),Double.parseDouble(strategy.split("_")[2]),strategy.split("_")[3],strategy.split("_")[4]);
+			return new MCTSPlayer(board,rand,pieces,pieceCode,players,corner,strategy.split("_")[1].equals("playout"),Integer.parseInt(strategy.split("_")[2]),Double.parseDouble(strategy.split("_")[3]),strategy.split("_")[4],strategy.split("_")[5],strategy.split("_")[6]);
 		}
 		System.out.println("*** Invalid player strategy given! ***");
 		return null;
