@@ -6,15 +6,13 @@ import java.util.Random;
 import java.lang.Math;
 
 public class PolicyNetPlayer extends Player{
-	PolicyNet vn;
-	public PolicyNetPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner){
-		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
-		piecesRemaining = new ArrayList<Piece>(pieces);
-		piecesOnBoard = new ArrayList<Piece>();
-		strategy = "valuenet";
-		this.vn = new PolicyNet();
+	private PolicyNet pn;
+	public PolicyNetPlayer(Board board, ArrayList<Piece> pieces, String pieceCode, int startingCorner){
+		super(board,pieces,pieceCode,startingCorner);
+		this.pn = new PolicyNet();
+		strategy = "policynet";
 	}
-	public Piece choosePiece(){
+	public Piece choosePiece(ArrayList<Piece> possibleMoves){
 		Double bestScore = Double.NEGATIVE_INFINITY;
 		double pieceScore = 0.0;
 		Board cloned;
@@ -22,7 +20,7 @@ public class PolicyNetPlayer extends Player{
 		for (Piece p : possibleMoves){
 			cloned = board.clone();
 			cloned.putPieceOnBoard(p,pieceCode);
-			pieceScore = vn.getValue(cloned,startingCorner == 1);
+			pieceScore = pn.getValue(cloned,startingCorner == 1);
 			if (pieceScore > bestScore){
 				best.clear();
 				best.add(p);

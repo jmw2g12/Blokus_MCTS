@@ -7,15 +7,15 @@ import java.lang.Math;
 import java.util.Arrays;
 
 public class HumanPlayer extends Player{
-	BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+	private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 	
-	public HumanPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner){
-		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
+	public HumanPlayer(Board board, ArrayList<Piece> pieces, String pieceCode, int startingCorner){
+		super(board,pieces,pieceCode,startingCorner);
 		strategy = "human";
 	}
 	
-	public Piece choosePiece(){ 
-		return acceptUserInput();
+	public Piece choosePiece(ArrayList<Piece> possibleMoves){ 
+		return acceptUserInput(possibleMoves);
 	}
 	public String[] acceptValues(int numOfConnectors){
 		String[] input = {""};
@@ -28,8 +28,6 @@ public class HumanPlayer extends Player{
 				line = reader.readLine();
 				input = line.split(" ");
 			}catch (IOException ioe){
-				System.out.println("Invalid input!");
-				System.out.println("");
 				continue;
 			}
 			if (input.length >= 3 && isNumeric(input[0]) && isNumeric(input[1]) && isNumeric(input[2])){
@@ -50,8 +48,6 @@ public class HumanPlayer extends Player{
 				if (input.length >= 1 && input[0].equals("q")){
 					System.out.println('\n' + "Goodbye!" + '\n' + '\n');
 					System.exit(0);
-				}else if (input[0].equals("mcts")){
-					return input;
 				}else if (input[0].equals("resign")){
 					return null;
 				}
@@ -60,11 +56,10 @@ public class HumanPlayer extends Player{
 		}
 		return input;
 	}
-	public Piece acceptUserInput(){
+	public Piece acceptUserInput(ArrayList<Piece> possibleMoves){
 		
-		connectableBlocks = board.getConnectableBlocks(board.getCornerBlocks(pieceCode),pieceCode);
+		ArrayList<Pair<Block,Integer>> connectableBlocks = board.getConnectableBlocks(board.getCornerBlocks(pieceCode),pieceCode);
 		printBoardAndOptions(connectableBlocks);
-		ArrayList<Piece> uniquePieces = getUniquePiecesFromOrderedList(piecesRemaining);
 		
 		Piece p;
 		String[] input = {""};
@@ -106,24 +101,6 @@ public class HumanPlayer extends Player{
 		System.out.println();
 		printPiecesInLine(piecesRemaining, 120, 3, 0);
 	}
-	public ArrayList<Piece> getUniquePiecesFromOrderedList(ArrayList<Piece> list){
-		ArrayList<Piece> result = new ArrayList<Piece>();
-		boolean first = true;
-		Piece prev = list.get(0);
-		for (Piece p : list){
-			if (first == false){
-				if (!p.isSamePiece(prev)){
-					result.add(p);
-				}
-			}else{
-				result.add(p);
-			}
-			first = false;
-			prev = p;
-		}
-		return result;
-	}
-
 	public String nBlanks(int n){
 		String s = "";
 		for (int i = 0; i < n; i++){

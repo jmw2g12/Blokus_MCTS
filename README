@@ -1,0 +1,62 @@
+Java Application
+----------------
+
+To compile the classes run "javac *.java".
+To run a game, call "java Blokus <player one strategy> <player two strategy>".
+
+Strategies:
+
+	- "random"	Chooses a possible move at random.
+
+	- "heuristic"	Uses the heatmap heuristic to try cover the board.
+
+	- "policy"	Uses the neural network to choose moves that are valued
+			as the strongest. Poor starting moves make player weak.
+
+	- "human"	Controlled by you. When the board is displayed, choose
+			a piece, the block you wish to connect and the
+			connector you wish to connect to (each separated by a
+			space).
+
+	- "mcts"	Monte carlo tree search. This takes 6 arguments each
+			separated with an underscore:
+
+		* Playout:		Use the string "playout" to specify a
+					set starting play is required, anything
+					else will omit it.
+
+		* Limit:		By default the limit is stated in
+					milliseconds, use upwards of 10000. This
+					can be changed to work in a number
+					simulation runs instead from within the
+					MCTSPlayer class.
+
+		* Exploration constant:	Used by the UCT formula to choose a new
+					node. 1 or 1.4 are standard values.
+
+		* Weighting method:	How the simulation section will weight
+					the moves before random choice, options
+					are "size", "heat" or "policy" to use
+					the piece size, the heat map heuristic
+					score or the policy neural network
+					values respectively.
+
+		* Scoring method: 	How the simulation section scores the
+					boards. Options are "binary" or
+					"difference" binary will use 1s and 0s
+					to denote wins and losses, difference
+					uses the score difference to move
+					heavily weight nodes.
+
+		* Final select policy:	How the piece is chosen once the
+					iteration limit has been reached.
+					Options are "max", "robust" or "pow" to
+					choose the child with the most wins,
+					most simulations or a combination,
+					respectively.
+
+
+For example: "java Blokus mcts_playout_10000_1.0_policy_difference_max random".
+
+Using MCTS may take a few minutes to run as this configuration will take 10
+seconds each move, lower the limit for testing purposes.

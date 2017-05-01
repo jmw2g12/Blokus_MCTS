@@ -1,15 +1,12 @@
 import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.util.Random;
+
 public class Blokus{
+	
 	final int boardSize = 14;
 	final int maxPieceSize = 5;
 
 	ArrayList<Piece> pieces = new ArrayList<Piece>();
 	ArrayList<Player> players = new ArrayList<Player>();
-	Random rand = new Random();
 	Board board = new Board(boardSize);
 	
 	public static void main(String[] args){
@@ -17,10 +14,7 @@ public class Blokus{
 		Blokus b = new Blokus();
 		b.initPieces();
 		
-		b.rand = new Random(System.currentTimeMillis());
 		Player p1,p2;
-		
-		PolicyNet vn = new PolicyNet();
 		
 		if (args.length >= 2){
 			p1 = b.generatePlayer(args[0],"1",1);
@@ -43,42 +37,31 @@ public class Blokus{
 			for (Player p : b.players){
 				if (!p.isFinished()){
 					//b.board.print();
-					//System.out.println(b.board.getMoves().size());
 					if (!p.takeMove()) finishedCount++;
 				}
 			}
 		}
 		//b.board.saveScoresToFile(p1,p2);
-		//b.board.savePlayingDataToFile(p1,p2);
+		b.board.savePlayingDataToFile(p1,p2);
 		
-		ArrayList<Integer> scores = new ArrayList<Integer>();
-		for (Player p : b.players){
-			scores.add(b.board.blocksOnBoard(p.getPieceCode()));
-		}
-		//System.out.println("Scores :");
+		b.board.print();
+		System.out.println("Scores :");
 		for (int i = 0; i < 2; i++){
-			System.out.println("Player " + i + " ( " + b.players.get(i).strategy + " ) = " + scores.get(i));
-		}
-	}
-	public class InvalidPlayerException extends Exception{
-		public InvalidPlayerException (String msg){
-			super(msg);
+			System.out.println("Player " + i + " ( " + b.players.get(i).strategy + " ) = " + b.board.blocksOnBoard(b.players.get(i).getPieceCode()));
 		}
 	}
 	public Player generatePlayer(String strategy, String pieceCode, int corner){
 		Player p;
 		if (strategy.equals("human")){
-			return new HumanPlayer(board,rand,pieces,pieceCode,players,corner);
+			return new HumanPlayer(board,pieces,pieceCode,corner);
 		}else if (strategy.equals("random")){
-			return new RandomPlayer(board,rand,pieces,pieceCode,players,corner);
+			return new RandomPlayer(board,pieces,pieceCode,corner);
 		}else if (strategy.equals("policynet") || strategy.equals("policy")){
-			return new PolicyNetPlayer(board,rand,pieces,pieceCode,players,corner);
+			return new PolicyNetPlayer(board,pieces,pieceCode,corner);
 		}else if (strategy.equals("heuristic")){
-			return new HeuristicPlayer(board,rand,pieces,pieceCode,players,corner);
-		}else if (strategy.equals("mctstester")){
-			return new MCTSTesterPlayer(board,rand,pieces,pieceCode,players,corner);
+			return new HeuristicPlayer(board,pieces,pieceCode,corner);
 		}else if (strategy.startsWith("mcts")){
-			return new MCTSPlayer(board,rand,pieces,pieceCode,players,corner,strategy.split("_")[1].equals("playout"),Integer.parseInt(strategy.split("_")[2]),Double.parseDouble(strategy.split("_")[3]),strategy.split("_")[4],strategy.split("_")[5],strategy.split("_")[6]);
+			return new MCTSPlayer(board,pieces,pieceCode,corner,strategy.split("_")[1].equals("playout"),Integer.parseInt(strategy.split("_")[2]),Double.parseDouble(strategy.split("_")[3]),strategy.split("_")[4],strategy.split("_")[5],strategy.split("_")[6]);
 		}
 		System.out.println("*** Invalid player strategy given! ***");
 		return null;
@@ -1180,12 +1163,4 @@ public class Blokus{
 		pieces.add(new Piece(b1,b2,b3,b4,b5));
 		pieces.get(pieces.size()-1).pieceNumber = 20;
 	}
-	public void printCharacters(int to){
-		System.out.println("----Start----");
-		for (int i = 0; i <= to; i++){
-			System.out.println(i + ":    " + ((char)i));
-		}
-		System.out.println("----End----");
-	}
-
 }

@@ -1,10 +1,8 @@
 import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-public class Piece{
-	int ID;
-	int pieceNumber = -1;
+
+public class Piece implements Comparable{
+	public int ID;
+	public int pieceNumber = -1;
 	public ArrayList<Block> blocks = new ArrayList<Block>();
 	public Piece(Block... b){
 		int counter = 0;
@@ -27,11 +25,10 @@ public class Piece{
 			bl.coordinate.y -= min_y;
 		}			
 	}
-	public Piece(){
-	}
-	public int getSize(){
-		return blocks.size();
-	}
+	public Piece(){}
+	public int getPieceNumber(){ return pieceNumber; }
+	public int getID(){ return ID; }
+	public int getSize(){ return blocks.size(); }
 	public void placePiece(Block b, Coord c){
 		for (Block bl : blocks){
 			bl.coordinate = null;
@@ -96,17 +93,6 @@ public class Piece{
 			}
 			return true;
 		}
-		return false;
-	}
-	public boolean isSamePiece(Piece p){
-		if (comparePieceRepresentations(p)) return true;
-		if (comparePieceRepresentations(p.rotateCW())) return true;
-		if (comparePieceRepresentations(p.rotateCW().rotateCW())) return true;
-		if (comparePieceRepresentations(p.rotateCCW())) return true;
-		if (comparePieceRepresentations(p.flipHorizontal())) return true;
-		if (comparePieceRepresentations(p.flipHorizontal().rotateCW())) return true;
-		if (comparePieceRepresentations(p.flipHorizontal().rotateCW().rotateCW())) return true;
-		if (comparePieceRepresentations(p.flipHorizontal().rotateCCW())) return true;
 		return false;
 	}
 	public void placePiece(Block placedBlock, Block connectorBlock, int direction){
@@ -263,5 +249,8 @@ public class Piece{
 		}
 		System.out.println("Piece does not exist in arraylist!   Piece.findPieceInArrayList(ArrayList<Piece>)");
 		return -1;
+	}
+	public int compareTo(Object p){
+    	return (ID - ((Piece)p).getID());
 	}
 }

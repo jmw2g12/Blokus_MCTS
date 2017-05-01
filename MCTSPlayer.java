@@ -6,62 +6,49 @@ import java.util.Random;
 import java.lang.Math;
 
 public class MCTSPlayer extends Player{
-	MCTS mcts;
-	boolean limitByTime = true;
-	long moveTime = 30000;
-	int iterations = 400;
-	double iteration_multiplication_factor = 1.3;
-	String scoringMethod;
-	String weightingMethod = "size";
-	boolean startingPlayout = true;
-	String finalSelect = "";
+	private MCTS mcts;
+	private boolean limitByTime = true;
+	private long moveTime = 30000;
+	private int iterations = 400;
+	private double iteration_multiplication_factor = 1.3;
+	private String scoringMethod = "difference";
+	private String weightingMethod = "size";
+	private boolean startingPlayout = true;
+	private String finalSelect = "max";
 	
-	public MCTSPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner, boolean startingPlayout, int limit, double explorationConstant, String weightingMethod, String scoringMethod, String finalSelect){
-		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
-		mcts = new MCTS(this, explorationConstant, weightingMethod, scoringMethod,limitByTime,finalSelect);
+	public MCTSPlayer(Board board, ArrayList<Piece> pieces, String pieceCode, int startingCorner, boolean startingPlayout, int limit, double explorationConstant, String weightingMethod, String scoringMethod, String finalSelect){
+		super(board,pieces,pieceCode,startingCorner);
+		this.mcts = new MCTS(this, explorationConstant, weightingMethod, scoringMethod,limitByTime,finalSelect);
 		
 		this.weightingMethod = weightingMethod;
 		this.scoringMethod = scoringMethod;
 		this.startingPlayout = startingPlayout;
 		this.finalSelect = finalSelect;
+		
 		if (limitByTime){
 			this.moveTime = limit;
 		}else{
 			this.iterations = limit;
 		}
 		
-		strategy = "mcts_" + (startingPlayout ? "playout" : "noplayout") + "_" + (limitByTime ? moveTime : iterations) + "_" + explorationConstant + "_" + scoringMethod + "_" + weightingMethod + "_" + finalSelect;
-		//System.out.println(strategy);
-		piecesRemaining = new ArrayList<Piece>(pieces);
-		piecesOnBoard = new ArrayList<Piece>();
+		this.strategy = "mcts_" + (startingPlayout ? "playout" : "noplayout") + "_" + (limitByTime ? moveTime : iterations) + "_" + explorationConstant + "_" + scoringMethod + "_" + weightingMethod + "_" + finalSelect;
 	}
-	public Piece choosePiece(){
+	public Piece choosePiece(ArrayList<Piece> possibleMoves){
 		board.setCurrentPlayer(this);
 		if (piecesOnBoard.size() >= 4 || !startingPlayout){
 			long startTime = System.currentTimeMillis();
 			Piece p = mcts.runMCTS(board, (limitByTime ? moveTime : iterations));
 			if (!limitByTime){
-				System.out.println("Time elapsed : " + (System.currentTimeMillis() - startTime));
+				//System.out.println("Time elapsed : " + (System.currentTimeMillis() - startTime));
 				iterations = (int)Math.round((double)iterations * iteration_multiplication_factor);
 			}
 			if (p == null) return null;
 			return p;
 		}else{
-			return chooseSetPlayPiece();
+			return chooseSetPlayPiece(possibleMoves);
 		}
 	}
-	public int explorationScore(Piece p){
-		Coord startingCoord = (startingCorner == 1 ? new Coord(0,0) : new Coord(board.getBoardSize()-1,board.getBoardSize()-1));
-		int score = 0;
-		for (Block b : p.blocks){
-			score += startingCoord.manhattanDistance(b.coordinate);
-		}
-		return score;
-	}
-	public int sizeScore(Piece p){
-		return p.blocks.size();
-	}
-	public Piece chooseSetPlayPiece(){
+	public Piece chooseSetPlayPiece(ArrayList<Piece> possibleMoves){
 		int bestScore = 0;
 		int pieceScore = 0;
 		Board cloned;

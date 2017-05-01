@@ -1,34 +1,26 @@
 import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
 import java.util.Random;
 import java.lang.Math;
+
 public abstract class Player{
-	String strategy;
-	Board board;
-	int startingCorner;
-	boolean finished = false;
-	ArrayList<Piece> pieces;
-	ArrayList<Piece> piecesOnBoard;
-	ArrayList<Piece> piecesRemaining;
-	ArrayList<Player> allPlayers;
-	String pieceCode;
-	ArrayList<Pair<Block,Integer>> cornerBlocks = new ArrayList<Pair<Block,Integer>>();
-	ArrayList<Pair<Block,Integer>> connectableBlocks = new ArrayList<Pair<Block,Integer>>();
-	ArrayList<Piece> possibleMoves = new ArrayList<Piece>();
-	Random rand = new Random();
-	boolean firstMove = true;
+	public String strategy;
+	public Board board;
+	public int startingCorner;
+	public boolean finished = false;
+	public ArrayList<Piece> pieces;
+	public ArrayList<Piece> piecesOnBoard;
+	public ArrayList<Piece> piecesRemaining;
+	public String pieceCode;
+	public Random rand = new Random();
+	public boolean firstMove = true;
 	
-	public Player(){}
-	public Player(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner){
+	public Player(Board board, ArrayList<Piece> pieces, String pieceCode, int startingCorner){
 		this.board = board;
 		this.pieces = pieces;
 		this.piecesRemaining = new ArrayList<Piece>(pieces);
 		this.piecesOnBoard = new ArrayList<Piece>();
 		this.pieceCode = pieceCode;
-		this.allPlayers = allPlayers;
-		this.rand = rand;
+		this.rand = new Random();
 		this.startingCorner = startingCorner;
 	}
 	
@@ -74,25 +66,25 @@ public abstract class Player{
 	public ArrayList<Piece> getPiecesRemaining(){ return piecesRemaining; }
 	public boolean takeMove(){	
 		if (firstMove) placeStarterBlock();
-		if (strategy.equals("human")) updatePieceIDs();
+		updatePieceIDs();
 		Piece p;
-		possibleMoves = board.getMoves(this);
+		ArrayList<Piece> possibleMoves = board.getMoves(this);
 		if (possibleMoves.size() == 0){
 			finished = true;
 			return false;
 		}
-		p = choosePiece();
+		p = choosePiece(possibleMoves);
 		if (p == null){
 			finished = true;
 			return false;
 		}
 		board.putPieceOnBoard(p,pieceCode);
-		removePiece(piecesRemaining.get(p.ID),true);
+		removePiece(piecesRemaining.get(p.ID));
 		piecesOnBoard.add(p);
 				
 		return true;
 	}
-	public abstract Piece choosePiece();
+	public abstract Piece choosePiece(ArrayList<Piece> possibleMoves);
 	public void updatePieceIDs(){
 		int counter = 0;
 		for (Piece p : piecesRemaining){
@@ -100,13 +92,9 @@ public abstract class Player{
 			counter++;
 		}
 	}
-	public void removePiece(Piece piece, boolean removePermutations){
-		if (removePermutations){
-			for (Piece p : (ArrayList<Piece>)piecesRemaining.clone()){
-				if (p.isSamePiece(piece)) piecesRemaining.remove(p);
-			}
-		}else{
-			piecesRemaining.remove(piece);
+	public void removePiece(Piece piece){
+		for (Piece p : (ArrayList<Piece>)piecesRemaining.clone()){
+			if (p.getPieceNumber() == piece.getPieceNumber()) piecesRemaining.remove(p);
 		}
 	}
 }

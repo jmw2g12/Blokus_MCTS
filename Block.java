@@ -1,20 +1,21 @@
 import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
+
 public class Block{
+
 	public boolean starterBlock = false;
 	public int ID;
 	public Coord coordinate;
 	public Block top, right, bottom, left;
 	public ArrayList<Integer> neighbourIds = new ArrayList<Integer>();
 	public boolean topleft, topright, bottomleft, bottomright;
+	
 	public Block(Block top, Block right, Block bottom, Block left){
 		this.top = top;
 		this.right = right;
 		this.bottom = bottom;
 		this.left = left;
 	}
+	
 	public Block(){
 		this.top = null;
 		this.right = null;
@@ -25,6 +26,7 @@ public class Block{
 		bottomleft = true;
 		bottomright = true;			
 	}
+	
 	public Block clone(){
 		Block result = new Block();
 		result.coordinate = coordinate.clone();
@@ -56,11 +58,15 @@ public class Block{
 		}
 		return result;
 	}
+	
+	public Coord getCoordinate(){ return coordinate; }
+	
 	public boolean hasTopLeft(){ return topleft; }
 	public boolean hasTopRight(){ return topright; }
 	public boolean hasBottomLeft(){ return bottomleft; }
 	public boolean hasBottomRight(){ return bottomright; }
-		public void addTop(Block b){
+	
+	public void addTop(Block b){
 		topleft = (b == null) ? true : false;
 		topright = (b == null) ? true : false;
 		top = b;
@@ -80,6 +86,7 @@ public class Block{
 		bottomleft = (b == null) ? true : false;
 		left = b;
 	}
+	
 	public void connectTop(Block b){
 		addTop(b);
 		b.addBottom(this);
@@ -96,6 +103,7 @@ public class Block{
 		addLeft(b);
 		b.addRight(this);
 	}
+	
 	public void setAdjacentCoords(){
 		if (top != null && top.coordinate == null){
 			top.coordinate = new Coord(coordinate.x,coordinate.y+1);

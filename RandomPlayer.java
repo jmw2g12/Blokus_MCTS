@@ -6,19 +6,12 @@ import java.util.Random;
 import java.lang.Math;
 
 public class RandomPlayer extends Player{
-	
-	public RandomPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner){
-		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
-		piecesRemaining = new ArrayList<Piece>(pieces);
-		piecesOnBoard = new ArrayList<Piece>();
+	public RandomPlayer(Board board, ArrayList<Piece> pieces, String pieceCode, int startingCorner){
+		super(board,pieces,pieceCode,startingCorner);
 		strategy = "random";
 	}
-	public Piece choosePiece(){
+	public Piece choosePiece(ArrayList<Piece> possibleMoves){
 		int n = rand.nextInt(possibleMoves.size());
 		return possibleMoves.get(n);
 	}
-	public Player clone(){
-		return new RandomPlayer(board,rand,new ArrayList<Piece>(pieces),pieceCode,allPlayers,startingCorner);
-	}
-
 }

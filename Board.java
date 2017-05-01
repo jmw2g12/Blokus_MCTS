@@ -5,17 +5,19 @@ import java.util.Arrays;
 import java.lang.Math;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
+
 public class Board{
-	String[][] board;
-	Integer boardSize;
-	ArrayList<String> allPieceCodes = new ArrayList<String>();
-	ArrayList<Pair<Piece,String>> piecesDown = new ArrayList<Pair<Piece,String>>();
-	ArrayList<Player> players = new ArrayList<Player>();
-	Player currentPlayer;
-	ArrayList<Boolean> p1PiecesDown = new ArrayList<Boolean>();
-	ArrayList<Boolean> p2PiecesDown = new ArrayList<Boolean>();
-	ArrayList<Piece> allPieces = new ArrayList<Piece>();
-	PolicyNet pn = new PolicyNet();
+
+	private String[][] board;
+	private Integer boardSize;
+	private ArrayList<Pair<Piece,String>> piecesDown = new ArrayList<Pair<Piece,String>>();
+	private ArrayList<Player> players = new ArrayList<Player>();
+	private Player currentPlayer;
+	private ArrayList<Boolean> p1PiecesDown = new ArrayList<Boolean>();
+	private ArrayList<Boolean> p2PiecesDown = new ArrayList<Boolean>();
+	private ArrayList<Piece> allPieces = new ArrayList<Piece>();
+	private PolicyNet pn = new PolicyNet();
 	
 	public Board(int size){
 		this.boardSize = size;
@@ -32,7 +34,6 @@ public class Board{
 				b.board[i][j] = (board[i][j] == null ? null : new String(board[i][j]));
 			}
 		}
-		b.allPieceCodes = new ArrayList<String>(allPieceCodes);
 		b.piecesDown = new ArrayList<Pair<Piece,String>>(piecesDown);
 		b.setPlayers(players);
 		b.currentPlayer = currentPlayer;
@@ -41,9 +42,6 @@ public class Board{
 		b.allPieces = allPieces;
 		b.pn = pn;
 		return b;
-	}
-	public Board duplicate(){
-		return clone();
 	}
 	public int getBoardSize(){
 		return boardSize;
@@ -142,6 +140,7 @@ public class Board{
 	public boolean gameOver(){
 		return !doPlayersHaveRemainingMoves();
 	}	
+	
 	public double[] getBinaryScore(){
 		double[] score = new double[2];
 		if (gameOver()){	
@@ -163,6 +162,7 @@ public class Board{
 		}
 		return score;
 	}
+	
 	public double[] getProductScore(){
 		double[] score = new double[2];
 		Coord startingCoord = new Coord(0,0);
@@ -190,7 +190,7 @@ public class Board{
 		
 		return score;
 	}
-	public double[] getScore(){
+	public double[] getDifferenceScore(){
 		double[] score = new double[2];
 		
 		int p1Blocks = blocksOnBoard(players.get(0).getPieceCode());
@@ -219,7 +219,6 @@ public class Board{
 	public boolean doesPlayerHaveRemainingMoves(Player p){
 		return getMoves(p).size() > 0;
 	}
-	public ArrayList<String> getAllPieceCodes(){ return new ArrayList<String>(allPieceCodes); }
 	
 	public ArrayList<Boolean> getPiecesDown(Player p){
 		ArrayList<Boolean> piecesDown = new ArrayList<Boolean>();
@@ -261,6 +260,8 @@ public class Board{
 		cornerBlocks = getCornerBlocks(pieceCode);	
 		connectableBlocks = getConnectableBlocks(cornerBlocks,pieceCode);
 		possibleMoves = getPossibleMoves(connectableBlocks, pieceCode, piecesDown);
+		
+		Collections.sort(possibleMoves);
 		
 		return possibleMoves;
 
@@ -313,7 +314,6 @@ public class Board{
 		case 4:
 			return b.bottomright;
 		}
-		System.out.println("fatal error in canBlockConnect");
 		return false;
 	}
 	public ArrayList<Piece> filterPiecesDown(ArrayList<Piece> pl, ArrayList<Boolean> piecesDown){
@@ -343,36 +343,6 @@ public class Board{
 			if (getFromCoordinate(x+1,y) != null && getFromCoordinate(x+1,y).equals(pieceCode)) return false;
 			if (getFromCoordinate(x,y-1) != null && getFromCoordinate(x,y-1).equals(pieceCode)) return false;
 			if (getFromCoordinate(x-1,y) != null && getFromCoordinate(x-1,y).equals(pieceCode)) return false;
-		}
-		return true;
-	}
-	public boolean whyDoesntPieceFit(Piece p, String pieceCode){
-		if (pieceCode.equals(players.get(0).pieceCode)){
-			if (p1PiecesDown.get(p.pieceNumber)) return false;
-		}else if (pieceCode.equals(players.get(1).pieceCode)){
-			if (p2PiecesDown.get(p.pieceNumber)) return false;
-		}
-		System.out.println("1");
-		for (Block b : p.blocks){
-			int x = b.coordinate.x;
-			int y = b.coordinate.y;
-			System.out.println("x = " + x + ", y = " + y);
-			if (x < 0) return false;
-			if (y < 0) return false;
-			System.out.println("2");
-			if (x >= boardSize) return false;
-			if (y >= boardSize) return false;
-			System.out.println("3");
-			if (getFromCoordinate(x,y) != null && !getFromCoordinate(x,y).equals("")) return false;
-			System.out.println("4");
-			if (getFromCoordinate(x,y) != null && getFromCoordinate(x,y).equals(players.get(0).getPieceCode())) return false;
-			if (getFromCoordinate(x,y) != null && getFromCoordinate(x,y).equals(players.get(1).getPieceCode())) return false;
-			System.out.println("5");
-			if (getFromCoordinate(x,y+1) != null && getFromCoordinate(x,y+1).equals(pieceCode)) return false;
-			if (getFromCoordinate(x+1,y) != null && getFromCoordinate(x+1,y).equals(pieceCode)) return false;
-			if (getFromCoordinate(x,y-1) != null && getFromCoordinate(x,y-1).equals(pieceCode)) return false;
-			if (getFromCoordinate(x-1,y) != null && getFromCoordinate(x-1,y).equals(pieceCode)) return false;
-			System.out.println("5");
 		}
 		return true;
 	}
@@ -438,9 +408,6 @@ public class Board{
 		return result;
 	}
 	
-	public double[] getMoveWeights(String weightingMethod) {
-		return getMoveWeights(getMoves(),weightingMethod);
-	}
 	public double[] getMoveWeights(ArrayList<Piece> moves, String weightingMethod) {
 		if (weightingMethod.equals("size") || weightingMethod.equals("")){
 			double[] result = new double[moves.size()];
@@ -549,41 +516,27 @@ public class Board{
 	}
 	
 	public void putStartingPieceOnBoard(Piece p, String pieceCode){
-		allPieceCodes.add(pieceCode);
 		piecesDown.add(new Pair<Piece,String>(p,pieceCode));
 	}
 	public void putPieceOnBoard(Piece p, String pieceCode){
-		boolean quit = false;
-		if (!doesPieceFit(p,pieceCode)){
-			System.out.print("Piece does not fit! : pieceCode = " + pieceCode + ", player = ");
-			if (pieceCode.equals(players.get(0).pieceCode)){
-				System.out.println("0");
-			}else if (pieceCode.equals(players.get(1).pieceCode)){
-				System.out.println("1");
-			}
-			whyDoesntPieceFit(p,pieceCode);
-			quit = true;
-		}
+		
  		if (pieceCode.equals(players.get(0).pieceCode)){
- 			p1PiecesDown.set(p.pieceNumber, new Boolean(true));
+ 			p1PiecesDown.set(p.pieceNumber, true);
  		}else if (pieceCode.equals(players.get(1).pieceCode)){
 			p2PiecesDown.set(p.pieceNumber, new Boolean(true));
 		}
 
 		piecesDown.add(new Pair<Piece,String>(p,pieceCode));
+		
 		for (Block b : p.blocks){
-			Coord c = b.coordinate;
+			Coord c = b.getCoordinate();
 			board[c.y][c.x] = pieceCode;
 		}
+		
 		if (currentPlayer == players.get(0)){
-			if (doesPlayerHaveRemainingMoves(players.get(1))) currentPlayer = players.get(1);
+			if (doesPlayerHaveRemainingMoves(players.get(1)) && !players.get(1).isFinished()) currentPlayer = players.get(1);
 		}else{
-			if (doesPlayerHaveRemainingMoves(players.get(0))) currentPlayer = players.get(0);
-		}
-		if (quit){
-			printValues();
-			Thread.dumpStack();
-			System.exit(1);
+			if (doesPlayerHaveRemainingMoves(players.get(0)) && !players.get(0).isFinished()) currentPlayer = players.get(0);
 		}
 	}
 	public void makeMove(Piece m, String pieceCode){
@@ -598,7 +551,7 @@ public class Board{
 	
 	public void saveScoresToFile(Player... players){
 		File workingDir = new File(System.getProperty("user.dir"));
-		File scoresDir = new File(workingDir,"score_data_smcts");
+		File scoresDir = new File(workingDir,"score_data");
 		if (!scoresDir.exists()) scoresDir.mkdir();
 		for (int i = 0; i < 0xFFFF; i++){
 			if (!(new File(scoresDir,"scores" + i + ".txt").exists())){
@@ -647,7 +600,7 @@ public class Board{
 	}
 	public void savePlayingDataToFile(Player... players){
 		File workingDir = new File(System.getProperty("user.dir"));
-		File dataDir = new File(workingDir,"playing_data_smcts");
+		File dataDir = new File(workingDir,"playing_data");
 		if (!dataDir.exists()) dataDir.mkdir();
 		for (int i = 0; i < Double.POSITIVE_INFINITY; i++){
 			File movesFile = new File(dataDir,"moves" + i + ".txt");

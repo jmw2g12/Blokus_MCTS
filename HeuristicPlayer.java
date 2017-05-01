@@ -6,16 +6,11 @@ import java.util.Random;
 import java.lang.Math;
 
 public class HeuristicPlayer extends Player{
-	public HeuristicPlayer(Board board, Random rand, ArrayList<Piece> pieces, String pieceCode, ArrayList<Player> allPlayers, int startingCorner){
-		super(board,rand,pieces,pieceCode,allPlayers,startingCorner);
-		piecesRemaining = new ArrayList<Piece>(pieces);
-		piecesOnBoard = new ArrayList<Piece>();
+	public HeuristicPlayer(Board board, ArrayList<Piece> pieces, String pieceCode, int startingCorner){
+		super(board,pieces,pieceCode,startingCorner);
 		strategy = "heuristic";
 	}
-	public Player clone(){
-		return new HeuristicPlayer(board,rand,new ArrayList<Piece>(pieces),pieceCode,allPlayers,startingCorner);
-	}
-	public Piece choosePiece(){
+	public Piece choosePiece(ArrayList<Piece> possibleMoves){
 		int bestScore = 0;
 		int pieceScore = 0;
 		ArrayList<Piece> best = new ArrayList<Piece>();

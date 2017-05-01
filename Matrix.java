@@ -1,4 +1,8 @@
-import java.util.stream.*;
+/**
+ *	Class adapted from code found at: http://introcs.cs.princeton.edu/java/22library/Matrix.java.html
+ *	Original authors: Robert Sedgewick and Kevin Wayne
+ */
+
 public class Matrix {
     private final int M;             
     private final int N;             

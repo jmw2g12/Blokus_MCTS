@@ -1,3 +1,7 @@
+/**
+ *	Class adapted from code found at: https://github.com/theKGS/MCTS/
+ *	Original author: theKGS
+ */
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -8,58 +12,30 @@ public class Node {
 	public Piece move;
 	public ArrayList<Node> unvisitedChildren;
 	public ArrayList<Node> children;
-	//public Set<Integer> rVisited;
 	public Node parent;
 	public int player;
 	
-	/**
-	 * This creates the root node
-	 * 
-	 * @param b
-	 */
 	public Node(Board b) {
 		children = new ArrayList<Node>();
 		player = b.getCurrentPlayer();
 		score = new double[b.getQuantityOfPlayers()];
 	}
 
-	/**
-	 * This creates non-root nodes
-	 * 
-	 * @param b
-	 * @param m
-	 * @param prnt
-	 */
 	public Node(Board b, Piece m, Node prnt) {
-		//System.out.println("node init, player = " + player + " b.getCurrentPlayer() = " + b.getCurrentPlayer());
 		children = new ArrayList<Node>();
 		parent = prnt;
 		move = m;
-		Board tempBoard = b.duplicate();
+		Board tempBoard = b.clone();
 		tempBoard.makeMove(m);
 		player = tempBoard.getCurrentPlayer();
 		score = new double[b.getQuantityOfPlayers()];
-		//System.out.println("2 node init, player = " + player + " tempBoard.getCurrentPlayer() = " + tempBoard.getCurrentPlayer());
 	}
 
-	/**
-	 * Return the upper confidence bound of this state
-	 * 
-	 * @param c
-	 *            typically sqrt(2). Increase to emphasize exploration. Decrease
-	 *            to incr. exploitation
-	 * @param t
-	 * @return
-	 */
 	public double upperConfidenceBound(double c) {
 		return score[parent.player] / games  + c
 				* Math.sqrt(Math.log(parent.games + 1) / games);
 	}
 
-	/**
-	 * Update the tree with the new score.
-	 * @param scr
-	 */
 	public void backPropagateScore(double[] scr) {
 		this.games++;
 		for (int i = 0; i < scr.length; i++)
@@ -69,29 +45,15 @@ public class Node {
 			parent.backPropagateScore(scr);
 	}
 
-	/**
-	 * Expand this node by populating its list of
-	 * unvisited child nodes.
-	 * @param currentBoard
-	 */
 	public void expandNode(Board currentBoard){
-		//System.out.println("node expand, currentBoard.getCurrentPlayer() = " + currentBoard.getCurrentPlayer());
-		ArrayList<Piece> legalMoves = currentBoard.getMoves(player);
+		ArrayList<Piece> possibleMoves = currentBoard.getMoves(player);
 		unvisitedChildren = new ArrayList<Node>();
-		for (int i = 0; i < legalMoves.size(); i++) {
-			Node tempState = new Node(currentBoard, legalMoves.get(i), this);
-			unvisitedChildren.add(tempState);
+		for (int i = 0; i < possibleMoves.size(); i++) {
+			Node temp = new Node(currentBoard, possibleMoves.get(i), this);
+			unvisitedChildren.add(temp);
 		}
 	}
 
-	/**
-	 * Produce a list of viable nodes to visit. The actual 
-	 * selection is done in runMCTS
-	 * @param optimisticBias
-	 * @param pessimisticBias
-	 * @param explorationConstant
-	 * @return
-	 */
 	public ArrayList<Node> select(double explorationConstant){
 		double bestValue = Double.NEGATIVE_INFINITY;
 		ArrayList<Node> bestNodes = new ArrayList<Node>();
